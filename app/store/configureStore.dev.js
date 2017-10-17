@@ -3,6 +3,7 @@ import thunk from 'redux-thunk';
 import { createHashHistory } from 'history';
 import { routerMiddleware, routerActions } from 'react-router-redux';
 import { createLogger } from 'redux-logger';
+import { persistStore, autoRehydrate } from 'redux-persist';
 import rootReducer from './rootReducer';
 
 const history = createHashHistory();
@@ -42,10 +43,12 @@ const configureStore = (initialState?: counterStateType) => {
 
   // Apply Middleware & Compose Enhancers
   enhancers.push(applyMiddleware(...middleware));
-  const enhancer = composeEnhancers(...enhancers);
+  const enhancer = composeEnhancers(...enhancers, autoRehydrate());
 
   // Create Store
   const store = createStore(rootReducer, initialState, enhancer);
+
+  persistStore(store);
 
   if (module.hot) {
     module.hot.accept(
