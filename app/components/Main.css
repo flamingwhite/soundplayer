@@ -1,0 +1,46 @@
+.mainPlayer {
+  padding: 10px;
+}
+
+.avatar {
+  width: 70px;
+  height: 70px;
+}
+.topInfo {
+  display: flex;
+  justify-content: space-between;
+}
+.topInfo > div {
+  display: flex;
+}
+
+.singer {
+  font-size: 11px;
+  color: gray;
+}
+
+.songTitleDiv {
+  display: flex;
+  justify-content: space-between;
+}
+.songTitleDiv > div {
+  display: flex;
+}
+.songTitle {
+  color: black;
+}
+.leftTime {
+  color: green;
+}
+
+.footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.icon {
+  display: flex;
+  font-size: 17px;
+  margin-top: 5px;
+}
