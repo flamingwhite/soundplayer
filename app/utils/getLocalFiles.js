@@ -1,5 +1,5 @@
 import * as R from 'ramda';
-import { remote } from 'electron';
+import { shell, remote } from 'electron';
 
 const { dialog } = remote;
 
@@ -19,3 +19,5 @@ export const localAudioPaths = (options = {}) => {
 
   return getLocalFile(newOpts);
 };
+
+export const openItemInFolder = path => shell.showItemInFolder(path);

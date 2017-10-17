@@ -53,13 +53,15 @@ const getNextSong = (list, currentPlaying, mode = 'repeat') => {
   console.log('get into ended');
   const index = list.map(R.prop('path')).indexOf(R.prop('path', currentPlaying));
   console.log('current index is ', index);
-  return list[index + 1];
+  return list[index === list.length - 1 ? 0 : index + 1];
 };
 
 const actionHandler = {
   [ADD_AUDIO]: (state, action) => ({
     ...state,
-    audios: [...state.audios, action.payload],
+    audios: state.audios.find(au => au.path === action.payload.path)
+      ? state.audios
+      : [...state.audios, action.payload],
   }),
   [SET_CURRENT_PLAYING]: (state, action) => ({
     ...state,

@@ -1,9 +1,20 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Button } from 'antd';
-import { localAudioPaths } from '../utils/getLocalFiles';
+import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
 import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
+
+const AudioItem = props => {
+  const { onAudioClick, audio, openInFolderClick } = props;
+
+  return (
+    <div style={{ padding: 4 }}>
+      <span onClick={() => onAudioClick(audio)}>{audio.name}</span>
+      <span onClick={() => openInFolderClick(audio)}> Open IN Finder</span>
+    </div>
+  );
+};
 
 class AudioListContainer extends React.Component {
   addAudios = () => {
@@ -23,9 +34,11 @@ class AudioListContainer extends React.Component {
     return (
       <div>
         {audios.map(au => (
-          <div style={{ padding: 4 }} onClick={() => setCurrentPlayingAudio(au)} key={au.path}>
-            {au.name}
-          </div>
+          <AudioItem
+            audio={au}
+            onAudioClick={setCurrentPlayingAudio}
+            openInFolderClick={audio => openItemInFolder(audio.path)}
+          />
         ))}
         <Button onClick={this.addAudios}>Add Audio</Button>
       </div>
