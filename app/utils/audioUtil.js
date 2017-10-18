@@ -46,6 +46,16 @@ export const getTags = track => {
   return tagsPromise;
 };
 
+export const getAudioTags = filePath =>
+  new Promise((resolve, reject) => {
+    id3({ file: filePath, type: id3.OPEN_LOCAL }, (err, tags) => {
+      if (err) reject(err);
+      else if (tags) {
+        resolve({ ...tags, path: filePath });
+      }
+    });
+  });
+
 export const getNameByPath = filePath => {
   const basename = path.basename(filePath);
   const extname = path.extname(filePath);

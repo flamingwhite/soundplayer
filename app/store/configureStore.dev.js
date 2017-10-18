@@ -1,10 +1,11 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import { createHashHistory } from 'history';
+import { createEpicMiddleware } from 'redux-observable';
 import { routerMiddleware, routerActions } from 'react-router-redux';
 import { createLogger } from 'redux-logger';
 import { persistStore, autoRehydrate } from 'redux-persist';
-import rootReducer from './rootReducer';
+import rootReducer, { rootEpic } from './rootReducer';
 
 const history = createHashHistory();
 
@@ -26,6 +27,9 @@ const configureStore = (initialState?: counterStateType) => {
   // Router Middleware
   const router = routerMiddleware(history);
   middleware.push(router);
+
+  const epicMiddleware = createEpicMiddleware(rootEpic);
+  middleware.push(epicMiddleware);
 
   // Redux DevTools Configuration
   const actionCreators = {

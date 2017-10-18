@@ -1,8 +1,11 @@
 // @flow
 import { combineReducers } from 'redux';
 import { routerReducer as router } from 'react-router-redux';
-import audioReducer from '../reducers/audioActionReducer';
+import { combineEpics } from 'redux-observable';
+import audioReducer, { audioEpics } from '../reducers/audioActionReducer';
 import playListReducer from '../reducers/playListActionReducer';
+
+export const rootEpic = combineEpics(audioEpics);
 
 const rootReducer = combineReducers({
   router,

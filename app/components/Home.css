@@ -13,6 +13,8 @@
   display: flex;
   flex-direction: row;
   border: 1px solid green;
+  max-height: 400px;
+  overflow: scroll;
 }
 .playlistContainer {
   display: flex;
