@@ -62,20 +62,21 @@ const AudioList = props => {
 
 class AudioListContainer extends React.Component {
   addAudios = () => {
-    const { addAudio } = this.props;
+    const { addMultipleAduios } = this.props;
     return localAudioPaths().then(paths =>
-      paths
-        .map(p => ({
+      addMultipleAduios(
+        paths.map(p => ({
           path: p,
           name: getNameByPath(p),
-        }))
-        .forEach(addAudio),
+        })),
+      ),
     );
   };
 
   render() {
     const {
       audios,
+      currentPlaying,
       setCurrentPlayingAudio,
       setLikeAudio,
       removeAudio,
@@ -92,6 +93,7 @@ class AudioListContainer extends React.Component {
           />
 		))}  */}
         <AudioList
+          currentPlaying={currentPlaying}
           onAudioClick={setCurrentPlayingAudio}
           setLikeAudio={setLikeAudio}
           openInFolderClick={audio => openItemInFolder(audio.path)}
@@ -120,9 +122,11 @@ const getVisibleAudios = state => {
 export default connect(
   state => ({
     audios: getVisibleAudios(state),
+    currentPlaying: state.audioChunk.currentPlaying,
   }),
   dispatch => ({
     addAudio: audio => dispatch(actions.addAudio(audio)),
+    addMultipleAduios: audios => dispatch(actions.addMultipleAudios(audios)),
     setLikeAudio: (audio, newLike) => dispatch(actions.setLikeAudio(audio.path, newLike)),
     removeAudio: audio => dispatch(actions.removeAudio(audio.path)),
     removeAllAudio: () => dispatch(actions.removeAllAudio()),

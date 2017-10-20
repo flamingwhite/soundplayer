@@ -20,7 +20,10 @@ export const playModes = [
 ];
 
 export const ADD_AUDIO = 'ADD_AUDIO';
+
+export const ADD_MULTIPLE_AUDIOS = 'ADD_MULTIPLE_AUDIOS';
 export const UPDATE_AUDIO_INFO = 'UPDATE_AUDIO_INFO';
+export const UPDATE_MULTIPLE_AUDIO_INFO = 'UPDATE_MULTIPLE_AUDIO_INFO';
 export const REMOVE_AUDIO = 'REMOVE_AUDIO';
 export const REMOVE_ALL_AUDIO = 'REMOVE_ALL_AUDIO';
 export const SET_CURRENT_PLAYING = 'SET_CURRENT_PLAYING';
@@ -33,9 +36,19 @@ const addAudio = audio => ({
   payload: audio,
 });
 
+const addMultipleAudios = audios => ({
+  type: ADD_MULTIPLE_AUDIOS,
+  payload: audios,
+});
+
 const updateAudioInfo = info => ({
   type: UPDATE_AUDIO_INFO,
   payload: info,
+});
+
+const updateMultipleAudioInfo = list => ({
+  type: UPDATE_MULTIPLE_AUDIO_INFO,
+  payload: list,
 });
 
 const removeAudio = audioPath => ({
@@ -69,7 +82,9 @@ const setLikeAudio = (path, like = true) => ({
 
 export const actions = {
   addAudio,
+  addMultipleAudios,
   updateAudioInfo,
+  updateMultipleAudioInfo,
   removeAudio,
   removeAllAudio,
   setCurrentPlaying,
@@ -90,9 +105,20 @@ const actionHandler = {
     R.evolve({
       audios: R.unless(R.any(R.propEq('path', payload.path)), R.append(payload)),
     })(state),
+  [ADD_MULTIPLE_AUDIOS]: (state, { payload }) =>
+    R.evolve({
+      audios: R.unionWith(R.eqProps('path'), R.__, payload),
+    })(state),
   [UPDATE_AUDIO_INFO]: (state, { payload }) =>
     R.evolve({
       audios: R.map(au => (au.path === payload.path ? { ...au, ...payload } : au)),
+    })(state),
+  [UPDATE_MULTIPLE_AUDIO_INFO]: (state, { payload }) =>
+    R.evolve({
+      audios: R.map(au => {
+        const find = R.find(R.propEq('path', au.path), payload);
+        return find ? { ...au, ...find } : au;
+      }),
     })(state),
   [REMOVE_AUDIO]: (state, { payload }) =>
     R.evolve({
@@ -118,53 +144,38 @@ const audioReducer = (state = initialState, action) => {
   return handler ? handler(state, action) : state;
 };
 
-// Test some Epics
-// const fetchAudioInfoEpic = action$ =>
-//   action$
-//     .ofType(ADD_AUDIO)
-//     .map(R.path(['payload', 'path']))
-//     .flatMap(getAudioTags)
-//     .map(tags => {
-//       const { path, title, album, artist, year } = tags;
-//       const { track } = tags.v1;
-//       return { path, title, album, artist, year, track };
-//     })
-//     .map(updateAudioInfo);
+const getAudioInfoPromise = audioObj => {
+  const splitter = ' - ';
+  if (R.propSatisfies(R.contains(splitter), 'name')(audioObj)) {
+    const [artist, title] = audioObj.name.split(splitter);
+    return Promise.resolve({
+      ...audioObj,
+      artist,
+      title,
+    });
+  }
+  return getAudioTags(audioObj.path).then(tags => {
+    const { path, title, album, artist, year } = tags;
+    const { track } = tags.v1;
+    return { path, title, album, artist, year, track };
+  });
+};
 
 const fetchAudioInfoEpic = actions$ =>
   actions$
     .ofType(ADD_AUDIO)
     .map(R.prop('payload'))
-    // .map(payload => R.propSatisfies(R.contains(' - '), 'name'))
-    .flatMap(payload => {
-      const splitter = ' - ';
-      if (R.propSatisfies(R.contains(splitter), 'name')(payload)) {
-        const [artist, title] = payload.name.split(splitter);
-        return Promise.resolve({
-          ...payload,
-          artist,
-          title,
-        });
-      }
-      return getAudioTags(payload.path).then(tags => {
-        const { path, title, album, artist, year } = tags;
-        const { track } = tags.v1;
-        return { path, title, album, artist, year, track };
-      });
-    })
+    .flatMap(getAudioInfoPromise)
     .map(updateAudioInfo);
 
-// const getAudioDurationEpic = action$ =>
-//   action$
-//     .ofType(ADD_AUDIO)
-//     .map(R.path(['payload', 'path']))
-//     .flatMap(path => Promise.all([path, getDuration(path)]))
-//     .map(([path, duration]) => ({
-//       path,
-//       duration,
-//     }))
-//     .map(updateAudioInfo);
+const fetchMultipleAudioInfoEpic = action$ =>
+  action$
+    .ofType(ADD_MULTIPLE_AUDIOS)
+    .map(R.prop('payload'))
+    .map(R.map(getAudioInfoPromise))
+    .flatMap(ps => Promise.all(ps))
+    .map(updateMultipleAudioInfo);
 
-export const audioEpics = combineEpics(fetchAudioInfoEpic);
+export const audioEpics = combineEpics(fetchAudioInfoEpic, fetchMultipleAudioInfoEpic);
 
 export default audioReducer;
