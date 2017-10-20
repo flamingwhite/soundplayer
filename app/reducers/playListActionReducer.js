@@ -2,14 +2,12 @@ import createUUID from '../utils/createUUID';
 
 const initialState = {
   playLists: [],
-  activePlayListId: null,
+  activePlayList: { type: 'default', id: 'all' },
 };
 
 export const ADD_PLAYLIST = 'ADD_PLAYLIST';
 export const REMOVE_PLAYLIST = 'REMOVE_PLAYLIST';
-export const SET_ACTIVE_PLAYLIST_ID = 'SET_ACTIVE_PLAYLIST_ID';
-export const SET_DEFAULT_PLAYLIST_ACTIVE = 'SET_DEFAULT_PLAYLIST_ACTIVE';
-export const DEFAULT_PLAYLIST_ID = 'DEFAULT_PLAYLIST_ID';
+export const SET_PLAYLIST_ACTIVE = 'SET_PLAYLIST_ACTIVE';
 
 const addPlayList = name => ({
   type: ADD_PLAYLIST,
@@ -21,20 +19,15 @@ const removePlayList = id => ({
   payload: id,
 });
 
-const setActivePlayListId = id => ({
-  type: SET_ACTIVE_PLAYLIST_ID,
-  payload: id,
-});
-
-const setDefaultPlayListActive = () => ({
-  type: SET_DEFAULT_PLAYLIST_ACTIVE,
+const setActivePlaylist = playlist => ({
+  type: SET_PLAYLIST_ACTIVE,
+  payload: playlist,
 });
 
 export const actions = {
   addPlayList,
   removePlayList,
-  setActivePlayListId,
-  setDefaultPlayListActive,
+  setActivePlaylist,
 };
 
 const actionHandler = {
@@ -52,13 +45,9 @@ const actionHandler = {
     ...state,
     playLists: state.playLists.filter(li => li.id !== action.payload),
   }),
-  [SET_ACTIVE_PLAYLIST_ID]: (state, action) => ({
+  [SET_PLAYLIST_ACTIVE]: (state, action) => ({
     ...state,
-    activePlayListId: action.id,
-  }),
-  [SET_DEFAULT_PLAYLIST_ACTIVE]: state => ({
-    ...state,
-    activePlayListId: DEFAULT_PLAYLIST_ID,
+    activePlayList: action.payload,
   }),
 };
 

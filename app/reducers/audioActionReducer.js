@@ -26,6 +26,7 @@ export const REMOVE_ALL_AUDIO = 'REMOVE_ALL_AUDIO';
 export const SET_CURRENT_PLAYING = 'SET_CURRENT_PLAYING';
 export const SET_PLAY_MODE = 'SET_PLAY_MODE';
 export const PLAYBACK_END = 'PLAYBACK_END';
+export const SET_LIKE_AUDIO = 'SET_LIKE_AUDIO';
 
 const addAudio = audio => ({
   type: ADD_AUDIO,
@@ -61,6 +62,11 @@ const playbackEnd = () => ({
   type: PLAYBACK_END,
 });
 
+const setLikeAudio = (path, like = true) => ({
+  type: SET_LIKE_AUDIO,
+  payload: { path, like },
+});
+
 export const actions = {
   addAudio,
   updateAudioInfo,
@@ -69,6 +75,7 @@ export const actions = {
   setCurrentPlaying,
   setPlayMode,
   playbackEnd,
+  setLikeAudio,
 };
 
 const getNextSong = (list, currentPlaying, mode = 'repeat') => {
@@ -100,6 +107,10 @@ const actionHandler = {
       getNextSong(state.audios, state.currentPlaying, state.playModeId),
       state,
     ),
+  [SET_LIKE_AUDIO]: (state, { payload }) =>
+    R.evolve({
+      audios: R.map(R.when(R.propEq('path', payload.path), R.assoc('liked', payload.like))),
+    })(state),
 };
 
 const audioReducer = (state = initialState, action) => {
@@ -108,24 +119,52 @@ const audioReducer = (state = initialState, action) => {
 };
 
 // Test some Epics
-const fetchAudioInfoEpic = action$ =>
-  action$
+// const fetchAudioInfoEpic = action$ =>
+//   action$
+//     .ofType(ADD_AUDIO)
+//     .map(R.path(['payload', 'path']))
+//     .flatMap(getAudioTags)
+//     .map(tags => {
+//       const { path, title, album, artist, year } = tags;
+//       const { track } = tags.v1;
+//       return { path, title, album, artist, year, track };
+//     })
+//     .map(updateAudioInfo);
+
+const fetchAudioInfoEpic = actions$ =>
+  actions$
     .ofType(ADD_AUDIO)
-    .map(R.path(['payload', 'path']))
-    .flatMap(getAudioTags)
+    .map(R.prop('payload'))
+    // .map(payload => R.propSatisfies(R.contains(' - '), 'name'))
+    .flatMap(payload => {
+      const splitter = ' - ';
+      if (R.propSatisfies(R.contains(splitter), 'name')(payload)) {
+        const [artist, title] = payload.name.split(splitter);
+        return Promise.resolve({
+          ...payload,
+          artist,
+          title,
+        });
+      }
+      return getAudioTags(payload.path).then(tags => {
+        const { path, title, album, artist, year } = tags;
+        const { track } = tags.v1;
+        return { path, title, album, artist, year, track };
+      });
+    })
     .map(updateAudioInfo);
 
-const getAudioDurationEpic = action$ =>
-  action$
-    .ofType(ADD_AUDIO)
-    .map(R.path(['payload', 'path']))
-    .flatMap(path => Promise.all([path, getDuration(path)]))
-    .map(([path, duration]) => ({
-      path,
-      duration,
-    }))
-    .map(updateAudioInfo);
+// const getAudioDurationEpic = action$ =>
+//   action$
+//     .ofType(ADD_AUDIO)
+//     .map(R.path(['payload', 'path']))
+//     .flatMap(path => Promise.all([path, getDuration(path)]))
+//     .map(([path, duration]) => ({
+//       path,
+//       duration,
+//     }))
+//     .map(updateAudioInfo);
 
-export const audioEpics = combineEpics(fetchAudioInfoEpic, getAudioDurationEpic);
+export const audioEpics = combineEpics(fetchAudioInfoEpic);
 
 export default audioReducer;
