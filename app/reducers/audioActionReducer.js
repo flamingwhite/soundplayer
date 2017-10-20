@@ -57,13 +57,6 @@ export const actions = {
   popHistory: actionCreator(POP_HISTORY),
 };
 
-// const getNextSong = (list, currentPlaying, mode = 'repeat') => {
-//   console.log('get into ended');
-//   const index = list.map(R.prop('path')).indexOf(R.prop('path', currentPlaying));
-//   console.log('current index is ', index);
-//   return list[index === list.length - 1 ? 0 : index + 1];
-// };
-
 const actionHandler = {
   [SET_VOLUME]: (state, { payload }) => R.assoc('volume', payload, state),
   [ADD_AUDIO]: (state, { payload }) =>
@@ -91,11 +84,6 @@ const actionHandler = {
     })(state),
   [REMOVE_ALL_AUDIO]: R.pipe(R.assoc('audios', []), R.assoc('currentPlaying', null)),
   [SET_CURRENT_PLAYING]: (state, { payload }) => R.assoc('currentPlaying', payload, state),
-  //   [SET_CURRENT_PLAYING]: (state, { payload }) =>
-  //     R.evolve({
-  //       currentPlaying: payload,
-  //       history: R.append(payload),
-  //     })(state),
   [SET_PLAY_MODE]: (state, { payload }) => R.assoc('playModeId', payload, state),
   //   [PLAYBACK_END]: state => R.assoc('currentPlaying', getNextAudioToPlay(state), state),
   [SET_LIKE_AUDIO]: (state, { payload }) =>
@@ -106,7 +94,7 @@ const actionHandler = {
     R.evolve({
       history: history => [...R.reject(R.propEq('path', payload.path), history), payload],
     })(state),
-  [POP_HISTORY]: (state, { payload }) =>
+  [POP_HISTORY]: state =>
     R.evolve({
       history: R.dropLast,
     })(state),
@@ -154,7 +142,6 @@ const playNextAudioEpic = (action$, store) =>
     .filter(action => [PLAYBACK_END, PLAY_NEXT_AUDIO].includes(action.type))
     .map(() => getNextAudioToPlay(store.getState()))
     .map(actions.setCurrentPlaying);
-// .flatMap(nextAudio => [actions.setCurrentPlaying(nextAudio), actions.addHistory(nextAudio)]);
 
 const playPreviousAudioEpic = (action$, store) =>
   action$

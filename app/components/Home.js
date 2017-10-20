@@ -26,10 +26,9 @@ export class Home extends Component {
             <AudioListContainer />
           </Content>
         </Layout>
-        <Footer style={{ height: 100 }}>
+        <Content style={{ height: 100 }}>
           <PlayerController />
-          <PlayModeContainer />
-        </Footer>
+        </Content>
       </Layout>
     );
   }
