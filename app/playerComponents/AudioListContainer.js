@@ -4,6 +4,7 @@ import { Button, Table, Icon, Divider } from 'antd';
 import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
 import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
+import { getActiveGroupAudios } from '../selectors/audioSelectors';
 
 const formatSec = sec => `${Math.floor(sec / 60)}:${sec % 60}`;
 
@@ -107,21 +108,9 @@ class AudioListContainer extends React.Component {
   }
 }
 
-const getVisibleAudios = state => {
-  const { audioChunk } = state;
-  const { audios = [] } = audioChunk;
-  const { activePlayList } = state.playlistChunk;
-  const { type, id } = activePlayList;
-
-  if (type === 'custom') {
-  } else if (id === 'favorite') {
-    return audios.filter(au => au.liked);
-  } else return audios;
-};
-
 export default connect(
   state => ({
-    audios: getVisibleAudios(state),
+    audios: getActiveGroupAudios(state),
     currentPlaying: state.audioChunk.currentPlaying,
   }),
   dispatch => ({

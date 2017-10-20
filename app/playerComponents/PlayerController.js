@@ -1,38 +1,53 @@
 import React from 'react';
+import { Button, Slider } from 'antd';
 import { connect } from 'react-redux';
 import { convertSong } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
 
 class PlayerController extends React.Component {
-  //   state = {
-  //     url: null,
-  //   };
-  //   componentDidMount() {
-  //     if (!this.props.currentPlaying) return;
-  //     const { path } = this.props.currentPlaying;
-  //     if (path) {
-  //       return convertSong(path).then(url => {
-  //         console.log(url.slice(0, 30));
-  //         this.setState({ url });
-  //       });
-  //     }
-  //   }
-  //   componentWillReceiveProps(nextProps) {
-  //     if (nextProps.currentPlaying) {
-  //       return convertSong(nextProps.currentPlaying.path).then(url => {
-  //         console.log(url.slice(0, 30));
-  //         this.setState({ url });
-  //       });
-  //     }
-  //   }
+  componentDidMount() {
+    setTimeout(() => {
+      this.audioElm.volume = this.props.volume || 1;
+    }, 400);
+  }
   render() {
-    // const { url } = this.state;
-    const { currentPlaying, playbackEnd } = this.props;
+    const {
+      currentPlaying,
+      playbackEnd,
+      volume,
+      setVolume,
+      playNextAudio,
+      playPreviousAudio,
+    } = this.props;
     return (
       <div>
+        <Slider
+          min={0}
+          max={1}
+          value={volume}
+          step={0.01}
+          onChange={v => {
+            setVolume(v);
+            this.audioElm.volume = v;
+          }}
+          style={{ width: 200, float: 'left' }}
+        />
+        {currentPlaying && (
+          <span>
+            {currentPlaying.title} --- {currentPlaying.artist}{' '}
+            <Button onClick={playPreviousAudio}>Previous</Button>
+            <Button onClick={playNextAudio}>Next</Button>
+          </span>
+        )}
         {currentPlaying && (
           <audio
+            ref={elm => (this.audioElm = elm)}
             onEnded={playbackEnd}
+            volume={volume}
+            // onVolumeChange={() => {
+            //   console.log('volumn changed', this.audioElm.volume);
+            //   setVolume(this.audioElm.volume);
+            // }}
             controls="controls"
             autoPlay
             src={`file://${currentPlaying.path}`}
@@ -46,8 +61,12 @@ class PlayerController extends React.Component {
 export default connect(
   state => ({
     currentPlaying: state.audioChunk.currentPlaying,
+    volume: state.audioChunk.volume,
   }),
   dispatch => ({
     playbackEnd: () => dispatch(actions.playbackEnd()),
+    playNextAudio: () => dispatch(actions.playNextAudio()),
+    playPreviousAudio: () => dispatch(actions.playPreviousAudio()),
+    setVolume: volume => dispatch(actions.setVolume(volume)),
   }),
 )(PlayerController);

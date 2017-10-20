@@ -1,11 +1,15 @@
 import * as R from 'ramda';
 import { combineEpics } from 'redux-observable';
-import { getAudioTags, getDuration } from '../utils/audioUtil';
+import { getAudioTags } from '../utils/audioUtil';
+import { actionCreator } from './actionHelper';
+import { getNextAudioToPlay } from '../selectors/audioSelectors';
 
 const initialState = {
   audios: [],
+  volume: 1,
   currentPlaying: null,
   playModeId: 'repeat',
+  history: [],
 };
 
 export const playModes = [
@@ -19,8 +23,8 @@ export const playModes = [
   },
 ];
 
+export const SET_VOLUME = 'SET_VOLUME';
 export const ADD_AUDIO = 'ADD_AUDIO';
-
 export const ADD_MULTIPLE_AUDIOS = 'ADD_MULTIPLE_AUDIOS';
 export const UPDATE_AUDIO_INFO = 'UPDATE_AUDIO_INFO';
 export const UPDATE_MULTIPLE_AUDIO_INFO = 'UPDATE_MULTIPLE_AUDIO_INFO';
@@ -29,81 +33,42 @@ export const REMOVE_ALL_AUDIO = 'REMOVE_ALL_AUDIO';
 export const SET_CURRENT_PLAYING = 'SET_CURRENT_PLAYING';
 export const SET_PLAY_MODE = 'SET_PLAY_MODE';
 export const PLAYBACK_END = 'PLAYBACK_END';
+export const PLAY_NEXT_AUDIO = 'PLAY_NEXT_AUDIO';
+export const PLAY_PREVIOUS_AUDIO = 'PLAY_PREVIOUS_AUDIO';
 export const SET_LIKE_AUDIO = 'SET_LIKE_AUDIO';
-
-const addAudio = audio => ({
-  type: ADD_AUDIO,
-  payload: audio,
-});
-
-const addMultipleAudios = audios => ({
-  type: ADD_MULTIPLE_AUDIOS,
-  payload: audios,
-});
-
-const updateAudioInfo = info => ({
-  type: UPDATE_AUDIO_INFO,
-  payload: info,
-});
-
-const updateMultipleAudioInfo = list => ({
-  type: UPDATE_MULTIPLE_AUDIO_INFO,
-  payload: list,
-});
-
-const removeAudio = audioPath => ({
-  type: REMOVE_AUDIO,
-  payload: audioPath,
-});
-
-const removeAllAudio = audioPath => ({
-  type: REMOVE_ALL_AUDIO,
-  payload: audioPath,
-});
-
-const setCurrentPlaying = audio => ({
-  type: SET_CURRENT_PLAYING,
-  payload: audio,
-});
-
-const setPlayMode = modeId => ({
-  type: SET_PLAY_MODE,
-  payload: modeId,
-});
-
-const playbackEnd = () => ({
-  type: PLAYBACK_END,
-});
-
-const setLikeAudio = (path, like = true) => ({
-  type: SET_LIKE_AUDIO,
-  payload: { path, like },
-});
+export const ADD_HISTORY = 'ADD_HISTORY';
+export const POP_HISTORY = 'POP_HISTORY';
 
 export const actions = {
-  addAudio,
-  addMultipleAudios,
-  updateAudioInfo,
-  updateMultipleAudioInfo,
-  removeAudio,
-  removeAllAudio,
-  setCurrentPlaying,
-  setPlayMode,
-  playbackEnd,
-  setLikeAudio,
+  setVolume: actionCreator(SET_VOLUME),
+  addAudio: actionCreator(ADD_AUDIO),
+  addMultipleAudios: actionCreator(ADD_MULTIPLE_AUDIOS),
+  updateAudioInfo: actionCreator(UPDATE_AUDIO_INFO),
+  updateMultipleAudioInfo: actionCreator(UPDATE_MULTIPLE_AUDIO_INFO),
+  removeAudio: () => actionCreator(REMOVE_AUDIO, null),
+  removeAllAudio: actionCreator(REMOVE_ALL_AUDIO),
+  setCurrentPlaying: actionCreator(SET_CURRENT_PLAYING),
+  setPlayMode: actionCreator(SET_PLAY_MODE),
+  playbackEnd: () => actionCreator(PLAYBACK_END, null),
+  playNextAudio: () => actionCreator(PLAY_NEXT_AUDIO, null),
+  playPreviousAudio: () => actionCreator(PLAY_PREVIOUS_AUDIO, null),
+  setLikeAudio: (path, like = true) => actionCreator(SET_LIKE_AUDIO, { path, like }),
+  addHistory: actionCreator(ADD_HISTORY),
+  popHistory: actionCreator(POP_HISTORY),
 };
 
-const getNextSong = (list, currentPlaying, mode = 'repeat') => {
-  console.log('get into ended');
-  const index = list.map(R.prop('path')).indexOf(R.prop('path', currentPlaying));
-  console.log('current index is ', index);
-  return list[index === list.length - 1 ? 0 : index + 1];
-};
+// const getNextSong = (list, currentPlaying, mode = 'repeat') => {
+//   console.log('get into ended');
+//   const index = list.map(R.prop('path')).indexOf(R.prop('path', currentPlaying));
+//   console.log('current index is ', index);
+//   return list[index === list.length - 1 ? 0 : index + 1];
+// };
 
 const actionHandler = {
+  [SET_VOLUME]: (state, { payload }) => R.assoc('volume', payload, state),
   [ADD_AUDIO]: (state, { payload }) =>
     R.evolve({
-      audios: R.unless(R.any(R.propEq('path', payload.path)), R.append(payload)),
+      audios: R.unionWith(R.eqProps('path'), R.__, [payload]),
     })(state),
   [ADD_MULTIPLE_AUDIOS]: (state, { payload }) =>
     R.evolve({
@@ -122,20 +87,28 @@ const actionHandler = {
     })(state),
   [REMOVE_AUDIO]: (state, { payload }) =>
     R.evolve({
-      audios: R.filter(R.complement(R.propEq)('path', payload)),
+      audios: R.reject(R.propEq('path', payload)),
     })(state),
   [REMOVE_ALL_AUDIO]: R.pipe(R.assoc('audios', []), R.assoc('currentPlaying', null)),
   [SET_CURRENT_PLAYING]: (state, { payload }) => R.assoc('currentPlaying', payload, state),
+  //   [SET_CURRENT_PLAYING]: (state, { payload }) =>
+  //     R.evolve({
+  //       currentPlaying: payload,
+  //       history: R.append(payload),
+  //     })(state),
   [SET_PLAY_MODE]: (state, { payload }) => R.assoc('playModeId', payload, state),
-  [PLAYBACK_END]: state =>
-    R.assoc(
-      'currentPlaying',
-      getNextSong(state.audios, state.currentPlaying, state.playModeId),
-      state,
-    ),
+  //   [PLAYBACK_END]: state => R.assoc('currentPlaying', getNextAudioToPlay(state), state),
   [SET_LIKE_AUDIO]: (state, { payload }) =>
     R.evolve({
       audios: R.map(R.when(R.propEq('path', payload.path), R.assoc('liked', payload.like))),
+    })(state),
+  [ADD_HISTORY]: (state, { payload }) =>
+    R.evolve({
+      history: history => [...R.reject(R.propEq('path', payload.path), history), payload],
+    })(state),
+  [POP_HISTORY]: (state, { payload }) =>
+    R.evolve({
+      history: R.dropLast,
     })(state),
 };
 
@@ -166,7 +139,7 @@ const fetchAudioInfoEpic = actions$ =>
     .ofType(ADD_AUDIO)
     .map(R.prop('payload'))
     .flatMap(getAudioInfoPromise)
-    .map(updateAudioInfo);
+    .map(actions.updateAudioInfo);
 
 const fetchMultipleAudioInfoEpic = action$ =>
   action$
@@ -174,8 +147,33 @@ const fetchMultipleAudioInfoEpic = action$ =>
     .map(R.prop('payload'))
     .map(R.map(getAudioInfoPromise))
     .flatMap(ps => Promise.all(ps))
-    .map(updateMultipleAudioInfo);
+    .map(actions.updateMultipleAudioInfo);
 
-export const audioEpics = combineEpics(fetchAudioInfoEpic, fetchMultipleAudioInfoEpic);
+const playNextAudioEpic = (action$, store) =>
+  action$
+    .filter(action => [PLAYBACK_END, PLAY_NEXT_AUDIO].includes(action.type))
+    .map(() => getNextAudioToPlay(store.getState()))
+    .map(actions.setCurrentPlaying);
+// .flatMap(nextAudio => [actions.setCurrentPlaying(nextAudio), actions.addHistory(nextAudio)]);
+
+const playPreviousAudioEpic = (action$, store) =>
+  action$
+    .ofType(PLAY_PREVIOUS_AUDIO)
+    .map(() => R.nth(-2, store.getState().audioChunk.history))
+    .flatMap(audio => [actions.popHistory(), actions.setCurrentPlaying(audio)]);
+
+const addPlayingHistory = action$ =>
+  action$
+    .ofType(SET_CURRENT_PLAYING)
+    .map(R.prop('payload'))
+    .map(actions.addHistory);
+
+export const audioEpics = combineEpics(
+  fetchAudioInfoEpic,
+  fetchMultipleAudioInfoEpic,
+  playNextAudioEpic,
+  playPreviousAudioEpic,
+  addPlayingHistory,
+);
 
 export default audioReducer;

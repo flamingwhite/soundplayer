@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { Button, Layout, Spin } from 'antd';
 import styles from './Home.css';
 import PlayerController from '../playerComponents/PlayerController';
-import PlayListContainer from '../playerComponents/PlayListContainer';
+import GroupContainer from '../playerComponents/GroupContainer';
 import AudioListContainer from '../playerComponents/AudioListContainer';
 import PlayModeContainer from '../playerComponents/PlayModeContainer';
 
@@ -15,12 +15,12 @@ export class Home extends Component {
   render() {
     return (
       <Layout style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-        <Header style={{ height: 60 }}>
+        <Header style={{ height: 60, background: 'white' }}>
           <PlayerController />
         </Header>
         <Layout>
           <Sider>
-            <PlayListContainer />
+            <GroupContainer />
           </Sider>
           <Content style={{ background: 'white' }}>
             <AudioListContainer />
