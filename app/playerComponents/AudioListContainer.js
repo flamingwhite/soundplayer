@@ -25,7 +25,13 @@ const AudioItem = props => {
 const AudioList = props => {
   const { list, onAudioClick, setLikeAudio, openInFolderClick, removeAudio } = props;
   return (
-    <Table size="small" pagination={false} dataSource={list} onRowDoubleClick={onAudioClick}>
+    <Table
+      size="small"
+      pagination={false}
+      dataSource={list}
+      onRowDoubleClick={onAudioClick}
+      rowKey={row => row.path}
+    >
       <Column
         render={(text, record, index) => (
           <span>

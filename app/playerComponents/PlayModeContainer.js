@@ -10,7 +10,9 @@ class PlayModeContainer extends React.Component {
       <div>
         <p>Select Playmode</p>
         {playModes.map(mode => (
-          <Button type={mode.id === playModeId ? 'primary' : 'default'}>{mode.label}</Button>
+          <Button key={mode.id} type={mode.id === playModeId ? 'primary' : 'default'}>
+            {mode.label}
+          </Button>
         ))}
       </div>
     );

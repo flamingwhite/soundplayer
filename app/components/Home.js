@@ -15,8 +15,8 @@ export class Home extends Component {
   render() {
     return (
       <Layout style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-        <Header style={{ height: 60, background: 'white' }}>
-          <PlayerController />
+        <Header style={{ height: 40, background: 'white' }}>
+          <h5>SilverX</h5>
         </Header>
         <Layout>
           <Sider>
@@ -27,6 +27,7 @@ export class Home extends Component {
           </Content>
         </Layout>
         <Footer style={{ height: 100 }}>
+          <PlayerController />
           <PlayModeContainer />
         </Footer>
       </Layout>

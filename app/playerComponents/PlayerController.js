@@ -34,16 +34,15 @@ class PlayerController extends React.Component {
         />
         {currentPlaying && (
           <span>
-            {currentPlaying.title} --- {currentPlaying.artist}{' '}
             <Button onClick={playPreviousAudio}>Previous</Button>
             <Button onClick={playNextAudio}>Next</Button>
+            {currentPlaying.title} --- {currentPlaying.artist}{' '}
           </span>
         )}
         {currentPlaying && (
           <audio
             ref={elm => (this.audioElm = elm)}
             onEnded={playbackEnd}
-            volume={volume}
             // onVolumeChange={() => {
             //   console.log('volumn changed', this.audioElm.volume);
             //   setVolume(this.audioElm.volume);
