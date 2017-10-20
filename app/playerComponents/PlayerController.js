@@ -44,13 +44,12 @@ class PlayerController extends React.Component {
       <div>
         {!currentPlaying && <div>No Source</div>}
         {currentPlaying && (
-          <div style={{ display: 'flex' }}>
+          <div style={{ display: 'flex', background: 'lightgray' }}>
             <div
               style={{
                 width: 200,
-                background: 'gray',
                 display: 'flex',
-                justifyContent: 'center',
+                justifyContent: 'space-around',
                 alignItems: 'center',
                 height: 60,
               }}
@@ -59,12 +58,22 @@ class PlayerController extends React.Component {
                 type="step-backward"
                 onClick={playPreviousAudio}
                 className={styles.playIconSmall}
+                style={{ marginLeft: 30 }}
               />
-              <Icon type="pause" onClick={pauseClick} />
-              <Icon type="caret-right" onClick={playClick} />
-              <Icon type="step-forward" onClick={playNextAudio} />
+              {playing && (
+                <Icon type="pause" onClick={pauseClick} className={styles.playIconLarge} />
+              )}
+              {!playing && (
+                <Icon type="caret-right" onClick={playClick} className={styles.playIconLarge} />
+              )}
+              <Icon
+                type="step-forward"
+                onClick={playNextAudio}
+                style={{ marginRight: 30 }}
+                className={styles.playIconSmall}
+              />
             </div>
-            <div style={{ background: 'white', alignItems: 'center', display: 'flex' }}>
+            <div style={{ alignItems: 'center', display: 'flex' }}>
               <Slider
                 min={0}
                 max={duration}
@@ -76,7 +85,9 @@ class PlayerController extends React.Component {
                 }}
                 style={{ width: 500 }}
               />
-              <span>{`${currentTime}/${duration}`}</span>
+              <span
+                style={{ marginLeft: 10, marginRight: 20 }}
+              >{`${currentTime}/${duration}`}</span>
               <Icon type="sound" style={{ fontSize: 15 }} />
               <Slider
                 min={0}
@@ -97,12 +108,6 @@ class PlayerController extends React.Component {
 
         {currentPlaying && (
           <span>
-            {currentTime}
-            <span>--dura--{duration}</span>
-            <Button onClick={playPreviousAudio}>Previous</Button>
-            <Button onClick={playNextAudio}>Next</Button>
-            <Button onClick={() => this.audioElm.pause()}>pause</Button>
-            <Button onClick={() => this.audioElm.play()}>play</Button>
             {currentPlaying.title} --- {currentPlaying.artist}{' '}
           </span>
         )}
@@ -113,7 +118,6 @@ class PlayerController extends React.Component {
             onLoadedMetadata={e =>
               this.setState({ duration: Math.floor(e.nativeEvent.target.duration) })}
             onTimeUpdate={e => this.timeUpdate$.next(e.nativeEvent.target.currentTIme)}
-            controls="controls"
             autoPlay
             src={`file://${currentPlaying.path}`}
           />
