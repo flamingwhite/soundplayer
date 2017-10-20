@@ -30,6 +30,7 @@ class PlayerController extends React.Component {
             setVolume(v);
             this.audioElm.volume = v;
           }}
+          tipFormatter={v => `${Math.floor(v * 100)}%`}
           style={{ width: 200, float: 'left' }}
         />
         {currentPlaying && (
