@@ -4,7 +4,7 @@ import { Button, Table, Icon, Divider } from 'antd';
 import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
 import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
-import { getActiveGroupAudios } from '../selectors/audioSelectors';
+import { getMd5 } from '../utils/getLocalFiles';
 
 const formatSec = sec => `${Math.floor(sec / 60)}:${sec % 60}`;
 
@@ -30,7 +30,7 @@ const AudioList = props => {
       pagination={false}
       dataSource={list}
       onRowDoubleClick={onAudioClick}
-      rowKey={row => row.path}
+      rowKey={row => row.id}
     >
       <Column
         render={(text, record, index) => (
@@ -73,6 +73,7 @@ class AudioListContainer extends React.Component {
     return localAudioPaths().then(paths =>
       addMultipleAduios(
         paths.map(p => ({
+          id: getMd5(p),
           path: p,
           name: getNameByPath(p),
         })),
@@ -116,14 +117,14 @@ class AudioListContainer extends React.Component {
 
 export default connect(
   state => ({
-    audios: getActiveGroupAudios(state),
+    audios: state.audioChunk.audios,
     currentPlaying: state.audioChunk.currentPlaying,
   }),
   dispatch => ({
     addAudio: audio => dispatch(actions.addAudio(audio)),
     addMultipleAduios: audios => dispatch(actions.addMultipleAudios(audios)),
-    setLikeAudio: (audio, newLike) => dispatch(actions.setLikeAudio(audio.path, newLike)),
-    removeAudio: audio => dispatch(actions.removeAudio(audio.path)),
+    setLikeAudio: (audio, newLike) => dispatch(actions.setLikeAudio(audio.id, newLike)),
+    removeAudio: audio => dispatch(actions.removeAudio(audio.id)),
     removeAllAudio: () => dispatch(actions.removeAllAudio()),
     setCurrentPlayingAudio: audio => dispatch(actions.setCurrentPlaying(audio)),
   }),

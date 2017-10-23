@@ -2,7 +2,7 @@ import React from 'react';
 import 'rxjs';
 import { render } from 'react-dom';
 import { AppContainer } from 'react-hot-loader';
-import Root from './containers/Root';
+import Root from './routeConfig/Root';
 import { configureStore, history } from './store/configureStore';
 import './app.global.css';
 
@@ -16,8 +16,8 @@ render(
 );
 
 if (module.hot) {
-  module.hot.accept('./containers/Root', () => {
-    const NextRoot = require('./containers/Root'); // eslint-disable-line global-require
+  module.hot.accept('./routeConfig/Root', () => {
+    const NextRoot = require('./routeConfig/Root'); // eslint-disable-line global-require
     render(
       <AppContainer>
         <NextRoot store={store} history={history} />

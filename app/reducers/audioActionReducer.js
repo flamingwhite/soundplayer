@@ -10,6 +10,7 @@ const initialState = {
   currentPlaying: null,
   playModeId: 'repeat',
   history: [],
+  historyIndex: 0,
 };
 
 export const playModes = [
@@ -45,14 +46,14 @@ export const actions = {
   addMultipleAudios: actionCreator(ADD_MULTIPLE_AUDIOS),
   updateAudioInfo: actionCreator(UPDATE_AUDIO_INFO),
   updateMultipleAudioInfo: actionCreator(UPDATE_MULTIPLE_AUDIO_INFO),
-  removeAudio: () => actionCreator(REMOVE_AUDIO, null),
-  removeAllAudio: actionCreator(REMOVE_ALL_AUDIO),
+  removeAudio: actionCreator(REMOVE_AUDIO),
+  removeAllAudio: () => actionCreator(REMOVE_ALL_AUDIO, null),
   setCurrentPlaying: actionCreator(SET_CURRENT_PLAYING),
   setPlayMode: actionCreator(SET_PLAY_MODE),
   playbackEnd: () => actionCreator(PLAYBACK_END, null),
   playNextAudio: () => actionCreator(PLAY_NEXT_AUDIO, null),
   playPreviousAudio: () => actionCreator(PLAY_PREVIOUS_AUDIO, null),
-  setLikeAudio: (path, like = true) => actionCreator(SET_LIKE_AUDIO, { path, like }),
+  setLikeAudio: (id, like = true) => actionCreator(SET_LIKE_AUDIO, { id, like }),
   addHistory: actionCreator(ADD_HISTORY),
   popHistory: actionCreator(POP_HISTORY),
 };
@@ -61,26 +62,26 @@ const actionHandler = {
   [SET_VOLUME]: (state, { payload }) => R.assoc('volume', payload, state),
   [ADD_AUDIO]: (state, { payload }) =>
     R.evolve({
-      audios: R.unionWith(R.eqProps('path'), R.__, [payload]),
+      audios: R.unionWith(R.eqProps('id'), R.__, [payload]),
     })(state),
   [ADD_MULTIPLE_AUDIOS]: (state, { payload }) =>
     R.evolve({
-      audios: R.unionWith(R.eqProps('path'), R.__, payload),
+      audios: R.unionWith(R.eqProps('id'), R.__, payload),
     })(state),
   [UPDATE_AUDIO_INFO]: (state, { payload }) =>
     R.evolve({
-      audios: R.map(au => (au.path === payload.path ? { ...au, ...payload } : au)),
+      audios: R.map(au => (au.id === payload.id ? { ...au, ...payload } : au)),
     })(state),
   [UPDATE_MULTIPLE_AUDIO_INFO]: (state, { payload }) =>
     R.evolve({
       audios: R.map(au => {
-        const find = R.find(R.propEq('path', au.path), payload);
+        const find = R.find(R.propEq('id', au.id), payload);
         return find ? { ...au, ...find } : au;
       }),
     })(state),
   [REMOVE_AUDIO]: (state, { payload }) =>
     R.evolve({
-      audios: R.reject(R.propEq('path', payload)),
+      audios: R.reject(R.propEq('id', payload)),
     })(state),
   [REMOVE_ALL_AUDIO]: R.pipe(R.assoc('audios', []), R.assoc('currentPlaying', null)),
   [SET_CURRENT_PLAYING]: (state, { payload }) => R.assoc('currentPlaying', payload, state),
@@ -88,11 +89,11 @@ const actionHandler = {
   //   [PLAYBACK_END]: state => R.assoc('currentPlaying', getNextAudioToPlay(state), state),
   [SET_LIKE_AUDIO]: (state, { payload }) =>
     R.evolve({
-      audios: R.map(R.when(R.propEq('path', payload.path), R.assoc('liked', payload.like))),
+      audios: R.map(R.when(R.propEq('id', payload.id), R.assoc('liked', payload.like))),
     })(state),
   [ADD_HISTORY]: (state, { payload }) =>
     R.evolve({
-      history: history => [...R.reject(R.propEq('path', payload.path), history), payload],
+      history: history => [...R.reject(R.propEq('id', payload.id), history), payload],
     })(state),
   [POP_HISTORY]: state =>
     R.evolve({

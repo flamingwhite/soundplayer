@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { Input, Button, Menu, Icon } from 'antd';
 import { actions } from '../reducers/groupActionReducer';
 
@@ -12,7 +13,7 @@ export const GroupList = ({ list }) => (
   <ul>{list.map(item => <li key={item.id}>{item.name}</li>)}</ul>
 );
 
-class GroupContainer extends React.Component {
+class NavContainer extends React.Component {
   state = {
     groupInputValue: '',
   };
@@ -42,6 +43,15 @@ class GroupContainer extends React.Component {
           </Menu.Item>
         </Menu>
         <GroupList list={groups} />
+        <Link to="/">
+          <Button>All</Button>
+        </Link>
+        <Link to="/favorite">
+          <Button>Favorite</Button>
+        </Link>
+        <Link to="/youtube">
+          <Button>YOutube</Button>
+        </Link>
         {/*
         <Input
           value={groupInputValue}
@@ -61,4 +71,4 @@ export default connect(
     newGroup: name => dispatch(actions.addGroup(name)),
     setActiveGroup: group => dispatch(actions.setActiveGroup(group)),
   }),
-)(GroupContainer);
+)(NavContainer);
