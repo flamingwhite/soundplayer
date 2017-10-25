@@ -22,3 +22,8 @@ export const getNextAudioToPlay = state => {
   const index = R.findIndex(R.propEq('path', currentPlaying.path), audioList);
   return audioList[index === audioList.length - 1 ? 0 : index + 1];
 };
+
+export const nextAudioToPlay = (audios, currentPlaying, playMode = 'repeat') => {
+  const index = R.findIndex(R.propEq('id', currentPlaying.id), audios);
+  return audios[index === audios.length - 1 ? 0 : index + 1];
+};

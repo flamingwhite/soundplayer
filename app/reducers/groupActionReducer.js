@@ -3,11 +3,27 @@ import { combineEpics } from 'redux-observable';
 import createUUID from '../utils/createUUID';
 import { actionCreator } from './actionHelper';
 import { SET_CURRENT_PLAYING } from './audioActionReducer';
+import { getMd5 } from '../utils/getLocalFiles';
+
+// const initialState = {
+//   groups: [],
+//   activeGroup: { type: 'default', id: 'all' },
+//   currentPlayingGroup: { type: 'default', id: 'all' },
+// };
 
 const initialState = {
-  groups: [],
-  activeGroup: { type: 'default', id: 'all' },
-  currentPlayingGroup: { type: 'default', id: 'all' },
+  groupSet: {
+    all: {
+      type: 'default',
+      name: 'All',
+    },
+    favorite: {
+      type: 'default',
+      name: 'Favorites',
+    },
+  },
+  activeGroup: 'all',
+  currentPlayingGroup: 'all',
 };
 
 export const ADD_GROUP = 'ADD_GROUP';
@@ -17,7 +33,7 @@ export const SET_CURRENT_PLAYING_GROUP = 'SET_CURRENT_PLAYING_GROUP';
 
 export const actions = {
   addGroup: actionCreator(ADD_GROUP),
-  removeGroup: actionCreator(REMOVE_GROUP),
+  removeGroup: () => actionCreator(REMOVE_GROUP, null),
   setActiveGroup: actionCreator(SET_GROUP_ACTIVE),
   setCurrentPlayingGroup: actionCreator(SET_CURRENT_PLAYING_GROUP),
 };
@@ -25,11 +41,14 @@ export const actions = {
 const actionHandler = {
   [ADD_GROUP]: (state, { payload }) =>
     R.evolve({
-      groups: R.append({ id: createUUID(), name: payload }),
+      groupSet: R.assoc(getMd5(payload.name), {
+        type: 'custom',
+        name: payload.name,
+      }),
     })(state),
   [REMOVE_GROUP]: (state, { payload }) =>
     R.evolve({
-      groups: R.reject(R.propEq('id', payload)),
+      groupSet: R.dissoc(payload.groupId),
     })(state),
   [SET_GROUP_ACTIVE]: (state, { payload }) => R.assoc('activeGroup', payload, state),
   [SET_CURRENT_PLAYING_GROUP]: (state, { payload }) =>

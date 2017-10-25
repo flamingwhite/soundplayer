@@ -1,4 +1,5 @@
 import React from 'react';
+import * as R from 'ramda';
 import { connect } from 'react-redux';
 import { Button, Table, Icon, Divider } from 'antd';
 import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
@@ -22,13 +23,20 @@ const AudioItem = props => {
   );
 };
 
-const AudioList = props => {
-  const { list, onAudioClick, setLikeAudio, openInFolderClick, removeAudio } = props;
+export const AudioList = props => {
+  const {
+    audios,
+    onAudioClick,
+    addAudioToFavorite,
+    removeAudioFromFavorite,
+    openInFolderClick,
+    removeAudio,
+  } = props;
   return (
     <Table
       size="small"
       pagination={false}
-      dataSource={list}
+      dataSource={audios}
       onRowDoubleClick={onAudioClick}
       rowKey={row => row.id}
     >
@@ -36,14 +44,14 @@ const AudioList = props => {
         render={(text, record, index) => (
           <span>
             <span style={{ marginRight: 10 }}>{index < 9 ? `0${index + 1}` : index + 1}</span>
-            {record.liked ? (
+            {R.path(['groups', 'favorite'], record) ? (
               <Icon
                 type="heart"
                 style={{ color: 'red' }}
-                onClick={() => setLikeAudio(record, false)}
+                onClick={() => removeAudioFromFavorite(record)}
               />
             ) : (
-              <Icon type="heart-o" onClick={() => setLikeAudio(record, true)} />
+              <Icon type="heart-o" onClick={() => addAudioToFavorite(record)} />
             )}
           </span>
         )}
@@ -69,9 +77,9 @@ const AudioList = props => {
 
 class AudioListContainer extends React.Component {
   addAudios = () => {
-    const { addMultipleAduios } = this.props;
+    const { addMultipleAudios } = this.props;
     return localAudioPaths().then(paths =>
-      addMultipleAduios(
+      addMultipleAudios(
         paths.map(p => ({
           id: getMd5(p),
           path: p,
@@ -82,31 +90,13 @@ class AudioListContainer extends React.Component {
   };
 
   render() {
-    const {
-      audios,
-      currentPlaying,
-      setCurrentPlayingAudio,
-      setLikeAudio,
-      removeAudio,
-      removeAllAudio,
-    } = this.props;
+    const { openItemInFolder, setCurrentPlayingAudio, removeAllAudio, ...rest } = this.props;
     return (
       <div>
-        {/* {audios.map(au => (
-          <AudioItem
-            audio={au}
-            onAudioClick={setCurrentPlayingAudio}
-            openInFolderClick={audio => openItemInFolder(audio.path)}
-            removeAudio={removeAudio}
-          />
-		))}  */}
         <AudioList
-          currentPlaying={currentPlaying}
+          {...rest}
           onAudioClick={setCurrentPlayingAudio}
-          setLikeAudio={setLikeAudio}
           openInFolderClick={audio => openItemInFolder(audio.path)}
-          removeAudio={removeAudio}
-          list={audios}
         />
         <Button onClick={this.addAudios}>Add Audio</Button>
         <Button onClick={removeAllAudio}>Remove ALL</Button>
@@ -122,8 +112,10 @@ export default connect(
   }),
   dispatch => ({
     addAudio: audio => dispatch(actions.addAudio(audio)),
-    addMultipleAduios: audios => dispatch(actions.addMultipleAudios(audios)),
-    setLikeAudio: (audio, newLike) => dispatch(actions.setLikeAudio(audio.id, newLike)),
+    addMultipleAudios: audios => dispatch(actions.addMultipleAudios(audios)),
+    // setLikeAudio: (audio, newLike) => dispatch(actions.setLikeAudio(audio.id, newLike)),
+    addAudioToFavorite: audio => dispatch(actions.addAudioToFavorite(audio.id)),
+    removeAudioFromFavorite: audio => dispatch(actions.removeAudioFromFavorite(audio.id)),
     removeAudio: audio => dispatch(actions.removeAudio(audio.id)),
     removeAllAudio: () => dispatch(actions.removeAllAudio()),
     setCurrentPlayingAudio: audio => dispatch(actions.setCurrentPlaying(audio)),
