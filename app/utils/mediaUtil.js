@@ -48,7 +48,7 @@ export const getMediaInfo = (url, format = defaultFileFormat) =>
     getFilenameByUrl(url, format),
     getDurationByUrl(url, format),
   ]).then(([filename, duration]) => ({
-    name: `${filename}.mp3`,
-    path: path.join(getMusicFolder(), `${filename}.mp3`),
+    name: `${filename.trim()}`,
+    path: path.join(getMusicFolder(), `${filename.trim()}.mp3`),
     duration,
   }));

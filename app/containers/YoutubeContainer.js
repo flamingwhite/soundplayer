@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Input, Button } from 'antd';
+import { Input, Button, Modal } from 'antd';
 import { getMusicFolder, downloadAudio } from '../utils/mediaUtil';
 import { actions } from '../reducers/audioActionReducer';
 
@@ -13,6 +13,7 @@ class YoutubeContainer extends React.Component {
   state = {
     inputValue: '',
     url: '',
+    showMediaModal: false,
   };
   downloadMedia = () => {
     const { url } = this.state;
@@ -24,13 +25,29 @@ class YoutubeContainer extends React.Component {
   };
 
   render() {
-    const { url, inputValue } = this.state;
+    const { url, inputValue, showMediaModal } = this.state;
     return (
       <div>
-        <Input value={inputValue} onChange={e => this.setState({ inputValue: e.target.value })} />
-        <Button onClick={() => this.setState({ url: getEmbedUrl(inputValue) })}>Get Video</Button>
-        {url && <iframe width="420" height="315" src={url} frameBorder="0" allowFullScreen />}
-        <Button onClick={this.downloadMedia}>Download Audio</Button>
+        <Button onClick={() => this.setState({ showMediaModal: true })}>Play Online Audio</Button>
+        {showMediaModal && (
+          <Modal
+            title="Add Online"
+            visible={showMediaModal}
+            onOk={() => {
+              this.downloadMedia().then(() => this.setState({ showMediaModal: false }));
+            }}
+          >
+            <Input
+              value={inputValue}
+              onChange={e => this.setState({ inputValue: e.target.value })}
+            />
+            {url && <iframe width="420" height="315" src={url} frameBorder="0" allowFullScreen />}
+            <Button onClick={() => this.setState({ url: getEmbedUrl(inputValue) })}>
+              Get Video
+            </Button>
+            <Button onClick={this.downloadMedia}>Download Audio</Button>
+          </Modal>
+        )}
       </div>
     );
   }

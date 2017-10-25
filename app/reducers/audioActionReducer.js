@@ -97,16 +97,12 @@ const actionHandler = {
   [ADD_AUDIO_TO_GROUP]: (state, { payload }) =>
     R.evolve({
       audios: R.map(
-        R.when(R.propEq('id', payload.audioId)),
-        R.assocPath(['groups', payload.groupId], true),
+        R.when(R.propEq('id', payload.audioId), R.assocPath(['groups', payload.groupId], true)),
       ),
     })(state),
   [REMOVE_AUDIO_FROM_GROUP]: (state, { payload }) =>
     R.evolve({
-      audios: R.map(
-        R.when(R.propEq('id', payload.audioId)),
-        R.dissocPath(['groups', payload.groupId], true),
-      ),
+      audios: R.when(R.propEq('id', payload.audioId), R.dissocPath(['groups', payload.groupId])),
     })(state),
   [SET_AUDIO_GROUPS]: (state, { payload }) =>
     R.evolve({

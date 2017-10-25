@@ -56,7 +56,12 @@ export const AudioList = props => {
           </span>
         )}
       />
-      <Column title="Title" dataIndex="title" width="60%" />
+      <Column
+        title="Title"
+        dataIndex="title"
+        width="60%"
+        render={(text, record) => record.title || record.name}
+      />
       <Column title="Artist" dataIndex="artist" width={200} />
       <Column
         title="Action"
@@ -90,7 +95,7 @@ class AudioListContainer extends React.Component {
   };
 
   render() {
-    const { openItemInFolder, setCurrentPlayingAudio, removeAllAudio, ...rest } = this.props;
+    const { setCurrentPlayingAudio, removeAllAudio, ...rest } = this.props;
     return (
       <div>
         <AudioList
