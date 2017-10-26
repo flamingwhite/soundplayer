@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import * as R from 'ramda';
 import { shell, remote } from 'electron';
+import sh from 'shelljs';
 
 const { dialog } = remote;
 
@@ -28,3 +29,5 @@ export const getMd5 = v =>
     .createHash('md5')
     .update(v)
     .digest('hex');
+
+export const replaceFileSync = (src, dest) => sh.mv(src, dest);

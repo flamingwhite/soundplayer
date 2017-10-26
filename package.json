@@ -210,6 +210,7 @@
     "redux-persist": "^4.10.1",
     "redux-thunk": "^2.2.0",
     "rxjs": "^5.4.3",
+    "shelljs": "^0.7.8",
     "source-map-support": "^0.4.15",
     "uuid": "^3.1.0",
     "ytdl-core": "^0.18.1"

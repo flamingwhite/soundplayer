@@ -2,6 +2,7 @@ import { remote } from 'electron';
 import path from 'path';
 import ffmpeg from 'fluent-ffmpeg';
 import child_process from 'child_process';
+import { secondsToTimeStr } from './timeUtil';
 
 const { app } = remote;
 
@@ -33,15 +34,35 @@ export const getFilenameByUrl = (url, format = defaultFileFormat) =>
   exec(`youtube-dl --no-check-certificate --get-filename  -o "${format}" ${url}`);
 
 export const getDurationByUrl = url =>
-  exec(`youtube-dl --no-check-certificate --get-duration  ${url}`);
-
-const download = (url, musicPath, format = defaultFileFormatWithExt) =>
-  exec(
-    `cd ${musicPath}; youtube-dl --no-check-certificate --extract-audio -o "${format}" --audio-format mp3 ${url}`,
+  //   exec(`youtube-dl --no-check-certificate --get-duration  ${url}`);
+  exec(`youtube-dl --no-check-certificate -j  ${url}`).then(
+    r =>
+      // console.log(r);
+      r && JSON.parse(r).duration,
   );
 
-export const downloadAudio = (url, musicPath = getMusicFolder()) =>
-  download(url, musicPath).then(() => getMediaInfo(url));
+export const downloadAudio = (
+  url,
+  musicPath = getMusicFolder(),
+  format = defaultFileFormatWithExt,
+) =>
+  exec(
+    `cd ${musicPath}; youtube-dl --no-check-certificate --extract-audio -o "${format}" --audio-format mp3 ${url}`,
+  ).then(r => r);
+
+// export const downloadAudio = (url, musicPath = getMusicFolder()) => download(url, musicPath);
+
+export const cutMedia = (inputPath, outputPath, startTime = 0, duration = 0) => {
+  console.log('arg', inputPath, outputPath, startTime, duration);
+  return new Promise((resolve, reject) => {
+    ffmpeg(inputPath)
+      .setStartTime(secondsToTimeStr(startTime))
+      .setDuration(duration)
+      .output(outputPath)
+      .on('end', err => (err ? reject(err) : resolve('DOne')))
+      .run();
+  });
+};
 
 export const getMediaInfo = (url, format = defaultFileFormat) =>
   Promise.all([
@@ -52,3 +73,9 @@ export const getMediaInfo = (url, format = defaultFileFormat) =>
     path: path.join(getMusicFolder(), `${filename.trim()}.mp3`),
     duration,
   }));
+
+export function getYoutubeVideoId(url) {
+  const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return match && match[7].length === 11 ? match[7] : false;
+}
