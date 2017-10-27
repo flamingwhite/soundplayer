@@ -80,6 +80,20 @@ export const AudioList = props => {
   );
 };
 
+export const AudioListWithDefault = connect(null, (dispatch, ownProps) => ({
+  addAudio: ownProps.addAudio || (audio => dispatch(actions.addAudio(audio))),
+  addMultipleAudios:
+    ownProps.addMultipleAudios || (audios => dispatch(actions.addMultipleAudios(audios))),
+  addAudioToFavorite:
+    ownProps.addAudioToFavorite || (audio => dispatch(actions.addAudioToFavorite(audio.id))),
+  removeAudioFromFavorite:
+    ownProps.removeAudioFromFavorite ||
+    (audio => dispatch(actions.removeAudioFromFavorite(audio.id))),
+  removeAudio: ownProps.removeAudio || (audio => dispatch(actions.removeAudio(audio.id))),
+  onAudioClick: ownProps.onAudioClick || (audio => dispatch(actions.setCurrentPlaying(audio))),
+  openInFolderClick: ownProps.openInFolderClick || (audio => openItemInFolder(audio.path)),
+}))(AudioList);
+
 class AudioListContainer extends React.Component {
   addAudios = () => {
     const { addMultipleAudios } = this.props;
@@ -95,14 +109,10 @@ class AudioListContainer extends React.Component {
   };
 
   render() {
-    const { setCurrentPlayingAudio, removeAllAudio, ...rest } = this.props;
+    const { audios, removeAllAudio } = this.props;
     return (
       <div>
-        <AudioList
-          {...rest}
-          onAudioClick={setCurrentPlayingAudio}
-          openInFolderClick={audio => openItemInFolder(audio.path)}
-        />
+        <AudioListWithDefault audios={audios} />
         <Button onClick={this.addAudios}>Add Audio</Button>
         <Button onClick={removeAllAudio}>Remove ALL</Button>
       </div>
@@ -113,16 +123,8 @@ class AudioListContainer extends React.Component {
 export default connect(
   state => ({
     audios: state.audioChunk.audios,
-    currentPlaying: state.audioChunk.currentPlaying,
   }),
   dispatch => ({
-    addAudio: audio => dispatch(actions.addAudio(audio)),
-    addMultipleAudios: audios => dispatch(actions.addMultipleAudios(audios)),
-    // setLikeAudio: (audio, newLike) => dispatch(actions.setLikeAudio(audio.id, newLike)),
-    addAudioToFavorite: audio => dispatch(actions.addAudioToFavorite(audio.id)),
-    removeAudioFromFavorite: audio => dispatch(actions.removeAudioFromFavorite(audio.id)),
-    removeAudio: audio => dispatch(actions.removeAudio(audio.id)),
     removeAllAudio: () => dispatch(actions.removeAllAudio()),
-    setCurrentPlayingAudio: audio => dispatch(actions.setCurrentPlaying(audio)),
   }),
 )(AudioListContainer);

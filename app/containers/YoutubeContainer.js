@@ -2,24 +2,27 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Input, Button, Modal, Slider } from 'antd';
 import path from 'path';
+import * as R from 'ramda';
+import { onlineAudios } from '../selectors/audioSelectors';
 import {
   getAudioFolder,
   getVideoFolder,
   downloadAudio,
-  getMediaInfo,
   getYoutubeVideoId,
   downloadAndCutMedia,
   getFilenameByUrl,
   getDurationByUrl,
 } from '../utils/mediaUtil';
+import { AudioListWithDefault } from '../containers/AudioListContainer';
 import { actions } from '../reducers/audioActionReducer';
 import { secondsToTimeStr } from '../utils/timeUtil';
-import { replaceFileSync } from '../utils/getLocalFiles';
 
 const getEmbedUrl = url => {
   const id = getYoutubeVideoId(url);
   return `https://www.youtube.com/embed/${id}`;
 };
+
+const YoutubeAudioList = connect(state => ({ audios: onlineAudios(state) }))(AudioListWithDefault);
 
 class YoutubeContainer extends React.Component {
   state = {
@@ -73,20 +76,6 @@ class YoutubeContainer extends React.Component {
     getDurationByUrl(url).then(duration => this.setState({ duration }));
   };
 
-  //   fetchInfo = () => {
-  //     console.log('fetchinfo start');
-  //     const { inputValue } = this.state;
-  //     const url = getEmbedUrl(inputValue);
-  //     return getMediaInfo(url).then(info => {
-  //       console.log('info get', info);
-  //       this.setState({
-  //         name: info.name,
-  //         duration: info.duration,
-  //         url: getEmbedUrl(url),
-  //       });
-  //     });
-  //   };
-
   render() {
     const { url, inputValue, showMediaModal, name, duration, timeChunk } = this.state;
     const [start, end] = timeChunk;
@@ -97,6 +86,7 @@ class YoutubeContainer extends React.Component {
         <video width="320" height="240" controls>
           <source src={`file://${getVideoFolder()}/testvideo.mp4`} />
         </video>
+        <YoutubeAudioList />
         {showMediaModal && (
           <Modal
             title="Add Online"

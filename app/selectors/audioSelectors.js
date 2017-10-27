@@ -27,3 +27,6 @@ export const nextAudioToPlay = (audios, currentPlaying, playMode = 'repeat') => 
   const index = R.findIndex(R.propEq('id', currentPlaying.id), audios);
   return audios[index === audios.length - 1 ? 0 : index + 1];
 };
+
+export const onlineAudios = state =>
+  R.filter(R.pathEq(['groups', 'onlineDownload'], true))(state.audioChunk.audios);
