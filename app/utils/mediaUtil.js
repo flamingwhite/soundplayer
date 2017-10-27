@@ -3,6 +3,7 @@ import path from 'path';
 import ffmpeg from 'fluent-ffmpeg';
 import child_process from 'child_process';
 import { secondsToTimeStr } from './timeUtil';
+import { replaceFileSync } from './getLocalFiles';
 
 const { app } = remote;
 
@@ -16,19 +17,9 @@ const exec = promisify(child_process.exec, child_process);
 const defaultFileFormat = '%(title)s';
 const defaultFileFormatWithExt = '%(title)s.%(ext)s';
 
-console.log(app.getPath('music'));
-export const getMusicFolder = () => path.join(app.getPath('music'), 'soundPlayer');
-
-// export const downloadAudio = url => {
-//   const musicPath = getMusicFolder();
-//   const downloadCommand = `cd ${musicPath}; youtube-dl --no-check-certificate --extract-audio -o "%(title)s.%(ext)s" --audio-format mp3 ${url}`;
-//   const filenameCommand = `youtube-dl --no-check-certificate --get-filename  -o "%(title)s.%(ext)s" ${url}`;
-//   const getLengthCommand = `youtube-dl -j ${url}`;
-
-//   //   return promisify(child_process.exec, child_process)(command).then();
-//   exec(getLengthCommand).then(console.log);
-//   return exec(downloadCommand).then(() => exec(filenameCommand));
-// };
+export const getMediaFolder = () => path.join(app.getPath('music'), 'soundPlayer');
+export const getAudioFolder = () => path.join(getMediaFolder(), 'Audios');
+export const getVideoFolder = () => path.join(getMediaFolder(), 'Videos');
 
 export const getFilenameByUrl = (url, format = defaultFileFormat) =>
   exec(`youtube-dl --no-check-certificate --get-filename  -o "${format}" ${url}`);
@@ -43,14 +34,20 @@ export const getDurationByUrl = url =>
 
 export const downloadAudio = (
   url,
-  musicPath = getMusicFolder(),
+  audioPath = getAudioFolder(),
   format = defaultFileFormatWithExt,
 ) =>
   exec(
-    `cd ${musicPath}; youtube-dl --no-check-certificate --extract-audio -o "${format}" --audio-format mp3 ${url}`,
+    `cd ${audioPath}; youtube-dl --no-check-certificate --extract-audio -o "${format}" --audio-format mp3 ${url}`,
   ).then(r => r);
 
-// export const downloadAudio = (url, musicPath = getMusicFolder()) => download(url, musicPath);
+export const downloadVideo = (
+  url,
+  videoPath = getVideoFolder(),
+  format = defaultFileFormatWithExt,
+) => exec(`cd ${videoPath}; youtube-dl --no-check-certificate -o "${format}" --format mp4 ${url}`);
+
+// export const downloadAudio = (url, audioPath = getMediaFolder()) => download(url, audioPath);
 
 export const cutMedia = (inputPath, outputPath, startTime = 0, duration = 0) => {
   console.log('arg', inputPath, outputPath, startTime, duration);
@@ -59,7 +56,7 @@ export const cutMedia = (inputPath, outputPath, startTime = 0, duration = 0) => 
       .setStartTime(secondsToTimeStr(startTime))
       .setDuration(duration)
       .output(outputPath)
-      .on('end', err => (err ? reject(err) : resolve('DOne')))
+      .on('end', err => (err ? reject(err) : resolve('Done')))
       .run();
   });
 };
@@ -70,7 +67,6 @@ export const getMediaInfo = (url, format = defaultFileFormat) =>
     getDurationByUrl(url, format),
   ]).then(([filename, duration]) => ({
     name: `${filename.trim()}`,
-    path: path.join(getMusicFolder(), `${filename.trim()}.mp3`),
     duration,
   }));
 
@@ -79,3 +75,34 @@ export function getYoutubeVideoId(url) {
   const match = url.match(regExp);
   return match && match[7].length === 11 ? match[7] : false;
 }
+
+export const downloadAndCutMedia = async ({
+  url,
+  filenameWithoutExt,
+  mediaFolder,
+  type,
+  startDuration,
+}) => {
+  console.log(url, filenameWithoutExt, mediaFolder, type, startDuration);
+  let downloadFn = downloadAudio;
+  let ext = '.mp3';
+  if (type !== 'audio') {
+    downloadFn = downloadVideo;
+    ext = '.mp4';
+  }
+
+  await downloadFn(url);
+  const filePath = path.join(mediaFolder, filenameWithoutExt + ext);
+  console.log('filepath', filePath);
+  if (startDuration) {
+    const { start, duration } = startDuration;
+    const tempPath = `${filePath}temp${ext}`;
+    await cutMedia(filePath, tempPath, start, duration);
+    replaceFileSync(tempPath, filePath);
+  }
+  return {
+    name: filenameWithoutExt + ext,
+    path: filePath,
+    type,
+  };
+};

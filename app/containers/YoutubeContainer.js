@@ -1,7 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Input, Button, Modal, Slider } from 'antd';
-import { downloadAudio, getMediaInfo, cutMedia, getYoutubeVideoId } from '../utils/mediaUtil';
+import path from 'path';
+import {
+  getAudioFolder,
+  getVideoFolder,
+  downloadAudio,
+  getMediaInfo,
+  getYoutubeVideoId,
+  downloadAndCutMedia,
+  getFilenameByUrl,
+  getDurationByUrl,
+} from '../utils/mediaUtil';
 import { actions } from '../reducers/audioActionReducer';
 import { secondsToTimeStr } from '../utils/timeUtil';
 import { replaceFileSync } from '../utils/getLocalFiles';
@@ -14,59 +24,78 @@ const getEmbedUrl = url => {
 class YoutubeContainer extends React.Component {
   state = {
     inputValue: '',
-    url: '',
+    url: null,
     showMediaModal: false,
-    mediaInfo: {},
+    name: null,
+    duration: null,
     timeChunk: [0, 0],
   };
   downloadMedia = () => {
-    const { url, mediaInfo } = this.state;
+    const { url, name, duration } = this.state;
     const { mediaDownloaded } = this.props;
     return downloadAudio(url).then(() => {
       console.log(mediaInfo);
-      return mediaDownloaded(mediaInfo);
+      return mediaDownloaded({ name, duration });
     });
   };
-  downloadMediaChunk = () => {
-    const { url, timeChunk, mediaInfo } = this.state;
+
+  downloadMediaChunk = (type = 'audio') => {
+    const { url, timeChunk, name, duration } = this.state;
     const { mediaDownloaded } = this.props;
-    return downloadAudio(url)
-      .then(() => console.log('downloadeddddddddddddddddddddddddddd'))
-      .then(() =>
-        cutMedia(
-          mediaInfo.path,
-          `${mediaInfo.path}cut.mp3`,
-          timeChunk[0],
-          timeChunk[1] - timeChunk[0],
-        ),
-      )
-      .then(() => replaceFileSync(`${mediaInfo.path}cut.mp3`, mediaInfo.path))
-      .then(() => console.log('cutted'))
-      .then(() => mediaDownloaded(mediaInfo));
+    const mediaFolder = type === 'audio' ? getAudioFolder() : getVideoFolder();
+    let startDuration = null;
+    if (timeChunk && timeChunk[0]) {
+      startDuration = {
+        start: timeChunk[0],
+        duration: timeChunk[1] - timeChunk[0],
+      };
+    }
+
+    return downloadAndCutMedia({
+      url,
+      filenameWithoutExt: name,
+      mediaFolder,
+      type,
+      startDuration,
+    }).then(mediaDownloaded);
   };
+
   fetchInfo = () => {
     console.log('fetchinfo start');
     const { inputValue } = this.state;
     const url = getEmbedUrl(inputValue);
-    return getMediaInfo(url).then(info => {
-      console.log('info get', info);
-      this.setState({
-        mediaInfo: info,
-        url: getEmbedUrl(url),
-      });
+
+    this.setState({ url, name: null, duration: null, timeChunk: [0, 0] });
+    getFilenameByUrl(url).then(name => {
+      console.log('name fetch', name);
+      this.setState({ name });
     });
+    getDurationByUrl(url).then(duration => this.setState({ duration }));
   };
 
+  //   fetchInfo = () => {
+  //     console.log('fetchinfo start');
+  //     const { inputValue } = this.state;
+  //     const url = getEmbedUrl(inputValue);
+  //     return getMediaInfo(url).then(info => {
+  //       console.log('info get', info);
+  //       this.setState({
+  //         name: info.name,
+  //         duration: info.duration,
+  //         url: getEmbedUrl(url),
+  //       });
+  //     });
+  //   };
+
   render() {
-    const { url, inputValue, showMediaModal, mediaInfo, timeChunk } = this.state;
+    const { url, inputValue, showMediaModal, name, duration, timeChunk } = this.state;
     const [start, end] = timeChunk;
     const { fetchInfo, downloadMedia, downloadMediaChunk } = this;
-    const { duration } = mediaInfo;
     return (
       <div>
         <Button onClick={() => this.setState({ showMediaModal: true })}>Play Online Audio</Button>
-        <video height="320" width="400">
-          <source src="http://pl-ali.youku.com/playlist/m3u8?vid=XMzAxOTU2MDg0NA%3D%3D&type=hd2&ups_client_netip=24.158.250.152&ups_ts=1509055879&utid=hkt5EoelXWoCARie%2BpgLm9K8&ccode=0401&psid=bb63a810075792cd710993c724b349d5&duration=1075&expire=18000&ups_key=a143040d5d3c2c89641f06186424f502" />
+        <video width="320" height="240" controls>
+          <source src={`file://${getVideoFolder()}/testvideo.mp4`} />
         </video>
         {showMediaModal && (
           <Modal
@@ -81,7 +110,7 @@ class YoutubeContainer extends React.Component {
             />
             {url && <iframe width="420" height="315" src={url} frameBorder="0" allowFullScreen />}
             {url}
-            {JSON.stringify(mediaInfo)}
+            {JSON.stringify({ name, duration })}
             {duration && (
               <Slider
                 range
@@ -93,8 +122,11 @@ class YoutubeContainer extends React.Component {
             )}
             <Button onClick={this.fetchInfo}>Get Video</Button>
             <Button onClick={this.downloadMedia}>Download Audio</Button>
-            <Button onClick={this.downloadMediaChunk}>
+            <Button onClick={() => this.downloadMediaChunk('audio')}>
               Download from {start} - {end}
+            </Button>
+            <Button onClick={() => this.downloadMediaChunk('video')}>
+              Video from {start} - {end}
             </Button>
           </Modal>
         )}
