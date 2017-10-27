@@ -65,6 +65,9 @@ class YoutubeContainer extends React.Component {
     return (
       <div>
         <Button onClick={() => this.setState({ showMediaModal: true })}>Play Online Audio</Button>
+        <video height="320" width="400">
+          <source src="http://pl-ali.youku.com/playlist/m3u8?vid=XMzAxOTU2MDg0NA%3D%3D&type=hd2&ups_client_netip=24.158.250.152&ups_ts=1509055879&utid=hkt5EoelXWoCARie%2BpgLm9K8&ccode=0401&psid=bb63a810075792cd710993c724b349d5&duration=1075&expire=18000&ups_key=a143040d5d3c2c89641f06186424f502" />
+        </video>
         {showMediaModal && (
           <Modal
             title="Add Online"
