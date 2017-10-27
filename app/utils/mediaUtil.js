@@ -22,7 +22,9 @@ export const getAudioFolder = () => path.join(getMediaFolder(), 'Audios');
 export const getVideoFolder = () => path.join(getMediaFolder(), 'Videos');
 
 export const getFilenameByUrl = (url, format = defaultFileFormat) =>
-  exec(`youtube-dl --no-check-certificate --get-filename  -o "${format}" ${url}`);
+  exec(`youtube-dl --no-check-certificate --get-filename  -o "${format}" ${url}`).then(
+    name => name && name.trim(),
+  );
 
 export const getDurationByUrl = url =>
   //   exec(`youtube-dl --no-check-certificate --get-duration  ${url}`);
