@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Input, Button, Modal, Slider } from 'antd';
+import { Input, Button, Modal, Slider, Spin, message } from 'antd';
 import path from 'path';
 import * as R from 'ramda';
 import { onlineAudios } from '../selectors/audioSelectors';
@@ -16,6 +16,7 @@ import {
 import { AudioListWithDefault } from '../containers/AudioListContainer';
 import { actions } from '../reducers/audioActionReducer';
 import { secondsToTimeStr } from '../utils/timeUtil';
+import withSpinner from '../hoc/withSpinner';
 
 const getEmbedUrl = url => {
   const id = getYoutubeVideoId(url);
@@ -26,8 +27,8 @@ const YoutubeAudioList = connect(state => ({ audios: onlineAudios(state) }))(Aud
 
 class YoutubeContainer extends React.Component {
   state = {
-    inputValue: '',
     url: null,
+    loading: false,
     showMediaModal: false,
     name: null,
     duration: null,
@@ -54,19 +55,32 @@ class YoutubeContainer extends React.Component {
       };
     }
 
+    this.setState({ loading: true });
+
     return downloadAndCutMedia({
       url,
       filenameWithoutExt: name,
       mediaFolder,
       type,
       startDuration,
-    }).then(mediaDownloaded);
+    })
+      .then(mediaDownloaded)
+      .then(() => this.setState({ loading: false }))
+      .catch(e => {
+        this.setState({ loading: false });
+        message.error('Something went wrong!');
+      });
   };
 
-  fetchInfo = () => {
+  fetchInfo = inputValue => {
     console.log('fetchinfo start');
-    const { inputValue } = this.state;
+    // const { inputValue } = this.state;
     const url = getEmbedUrl(inputValue);
+    this.setState({
+      name: null,
+      duration: null,
+      timeChunk: [0, 0],
+    });
 
     this.setState({ url, name: null, duration: null, timeChunk: [0, 0] });
     getFilenameByUrl(url).then(name => {
@@ -77,7 +91,7 @@ class YoutubeContainer extends React.Component {
   };
 
   render() {
-    const { url, inputValue, showMediaModal, name, duration, timeChunk } = this.state;
+    const { url, inputValue, showMediaModal, name, duration, timeChunk, loading } = this.state;
     const [start, end] = timeChunk;
     const { fetchInfo, downloadMedia, downloadMediaChunk } = this;
     return (
@@ -94,30 +108,30 @@ class YoutubeContainer extends React.Component {
             footer={null}
             onCancel={() => this.setState({ showMediaModal: false })}
           >
-            <Input
-              value={inputValue}
-              onChange={e => this.setState({ inputValue: e.target.value })}
-            />
-            {url && <iframe width="420" height="315" src={url} frameBorder="0" allowFullScreen />}
-            {url}
-            {JSON.stringify({ name, duration })}
-            {duration && (
-              <Slider
-                range
-                defaultValue={[0, duration]}
-                max={duration}
-                tipFormatter={secondsToTimeStr}
-                onAfterChange={v => this.setState({ timeChunk: v })}
-              />
-            )}
-            <Button onClick={this.fetchInfo}>Get Video</Button>
-            <Button onClick={this.downloadMedia}>Download Audio</Button>
-            <Button onClick={() => this.downloadMediaChunk('audio')}>
-              Download from {start} - {end}
-            </Button>
-            <Button onClick={() => this.downloadMediaChunk('video')}>
-              Video from {start} - {end}
-            </Button>
+            <Spin spinning={loading} tip={'Processing'}>
+              <Input.Search placeholder="Media URL" onSearch={this.fetchInfo} />
+              {url && <iframe width="420" height="315" src={url} frameBorder="0" allowFullScreen />}
+              {url}
+              {duration && (
+                <Slider
+                  range
+                  defaultValue={[0, duration]}
+                  max={duration}
+                  tipFormatter={secondsToTimeStr}
+                  onAfterChange={v => this.setState({ timeChunk: v })}
+                />
+              )}
+              {!duration && name && <div>Loading Duration Information</div>}
+              <Button onClick={this.downloadMedia}>Download Audio</Button>
+              {duration && [
+                <Button onClick={() => this.downloadMediaChunk('audio')}>
+                  Download from {start} - {end}
+                </Button>,
+                <Button onClick={() => this.downloadMediaChunk('video')}>
+                  Video from {start} - {end}
+                </Button>,
+              ]}
+            </Spin>
           </Modal>
         )}
       </div>
@@ -125,9 +139,18 @@ class YoutubeContainer extends React.Component {
   }
 }
 
-export default connect(
-  state => ({}),
-  dispatch => ({
-    mediaDownloaded: info => dispatch(actions.mediaDownloaded(info)),
-  }),
+export default R.compose(
+  connect(
+    state => ({}),
+    dispatch => ({
+      mediaDownloaded: info => dispatch(actions.mediaDownloaded(info)),
+    }),
+  ),
 )(YoutubeContainer);
+
+// export default connect(
+//   state => ({}),
+//   dispatch => ({
+//     mediaDownloaded: info => dispatch(actions.mediaDownloaded(info)),
+//   }),
+// )(YoutubeContainer);
