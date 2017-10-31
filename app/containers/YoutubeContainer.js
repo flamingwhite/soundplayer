@@ -25,15 +25,19 @@ const getEmbedUrl = url => {
 
 const YoutubeAudioList = connect(state => ({ audios: onlineAudios(state) }))(AudioListWithDefault);
 
+const defaultState = {
+  url: null,
+  loading: false,
+  showMediaModal: false,
+  name: null,
+  duration: null,
+  timeChunk: [0, 0],
+};
+
 class YoutubeContainer extends React.Component {
-  state = {
-    url: null,
-    loading: false,
-    showMediaModal: false,
-    name: null,
-    duration: null,
-    timeChunk: [0, 0],
-  };
+  state = { ...defaultState };
+
+  closeModal = () => this.setState({ ...defaultState });
   downloadMedia = () => {
     const { url, name, duration } = this.state;
     const { mediaDownloaded } = this.props;
@@ -77,17 +81,17 @@ class YoutubeContainer extends React.Component {
     // const { inputValue } = this.state;
     const url = getEmbedUrl(inputValue);
     this.setState({
+      url,
       name: null,
       duration: null,
       timeChunk: [0, 0],
     });
 
-    this.setState({ url, name: null, duration: null, timeChunk: [0, 0] });
     getFilenameByUrl(url).then(name => {
       console.log('name fetch', name);
       this.setState({ name });
     });
-    getDurationByUrl(url).then(duration => this.setState({ duration }));
+    getDurationByUrl(url).then(duration => this.setState({ duration, timeChunk: [0, duration] }));
   };
 
   render() {
@@ -106,7 +110,7 @@ class YoutubeContainer extends React.Component {
             title="Add Online"
             visible={showMediaModal}
             footer={null}
-            onCancel={() => this.setState({ showMediaModal: false })}
+            onCancel={this.closeModal}
           >
             <Spin spinning={loading} tip={'Processing'}>
               <Input.Search placeholder="Media URL" onSearch={this.fetchInfo} />
@@ -115,7 +119,7 @@ class YoutubeContainer extends React.Component {
               {duration && (
                 <Slider
                   range
-                  defaultValue={[0, duration]}
+                  defaultState={[0, duration]}
                   max={duration}
                   tipFormatter={secondsToTimeStr}
                   onAfterChange={v => this.setState({ timeChunk: v })}
@@ -147,10 +151,3 @@ export default R.compose(
     }),
   ),
 )(YoutubeContainer);
-
-// export default connect(
-//   state => ({}),
-//   dispatch => ({
-//     mediaDownloaded: info => dispatch(actions.mediaDownloaded(info)),
-//   }),
-// )(YoutubeContainer);
