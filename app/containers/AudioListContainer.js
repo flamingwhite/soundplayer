@@ -82,8 +82,6 @@ export const AudioList = props => {
 
 export const AudioListWithDefault = connect(null, (dispatch, ownProps) => ({
   addAudio: ownProps.addAudio || (audio => dispatch(actions.addAudio(audio))),
-  addMultipleAudios:
-    ownProps.addMultipleAudios || (audios => dispatch(actions.addMultipleAudios(audios))),
   addAudioToFavorite:
     ownProps.addAudioToFavorite || (audio => dispatch(actions.addAudioToFavorite(audio.id))),
   removeAudioFromFavorite:
@@ -126,5 +124,6 @@ export default connect(
   }),
   dispatch => ({
     removeAllAudio: () => dispatch(actions.removeAllAudio()),
+    addMultipleAudios: audios => dispatch(actions.addMultipleAudios(audios)),
   }),
 )(AudioListContainer);

@@ -13,6 +13,7 @@
     "arrow-parens": ["off"],
     "compat/compat": "error",
     "consistent-return": "off",
+    "constructor-super": "off",
     "comma-dangle": "off",
     "flowtype-errors/show-errors": "error",
     "generator-star-spacing": "off",
