@@ -204,12 +204,18 @@ const nextAudioEpic = (action$, store) =>
     .filter(action => [PLAYBACK_END, PLAY_NEXT_AUDIO].includes(action.type))
     .filter(() => store.getState().audioChunk.historyIndex === 0)
     .pluck('payload')
-    .map(() =>
-      nextAudioToPlay(
-        store.getState().audioChunk.audios,
-        store.getState().audioChunk.currentPlaying,
-      ),
-    )
+    .map(() => {
+      const { audioChunk, groupChunk } = store.getState();
+      const { currentPlayingGroup } = groupChunk;
+      const { currentPlaying, audios } = audioChunk;
+      const audiosInPlayingGroup = R.filter(
+        R.either(
+          R.always(currentPlayingGroup === 'all'),
+          R.pathEq(['groups', currentPlayingGroup], true),
+        ),
+      )(audios);
+      return nextAudioToPlay(audiosInPlayingGroup, currentPlaying);
+    })
     .map(actions.setCurrentPlaying);
 
 const downloadOnlineMediaEpic = action$ =>

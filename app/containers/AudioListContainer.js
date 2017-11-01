@@ -6,22 +6,11 @@ import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
 import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
 import { getMd5 } from '../utils/getLocalFiles';
-
-const formatSec = sec => `${Math.floor(sec / 60)}:${sec % 60}`;
+import lifecycleStream from '../hoc/lifecycleStream';
 
 const { Column, ColumnGroup } = Table;
 
-const AudioItem = props => {
-  const { onAudioClick, audio, openInFolderClick, removeAudio } = props;
-
-  return (
-    <div style={{ padding: 4 }}>
-      <span onClick={() => onAudioClick(audio)}>{audio.name}</span>
-      <span onClick={() => openInFolderClick(audio)}> Open IN Finder</span>
-      <span onClick={() => removeAudio(audio)}> Remove AUdio</span>
-    </div>
-  );
-};
+const formatSec = sec => `${Math.floor(sec / 60)}:${sec % 60}`;
 
 export const AudioList = props => {
   const {
@@ -80,17 +69,20 @@ export const AudioList = props => {
   );
 };
 
-export const AudioListWithDefault = connect(null, (dispatch, ownProps) => ({
-  addAudio: ownProps.addAudio || (audio => dispatch(actions.addAudio(audio))),
-  addAudioToFavorite:
-    ownProps.addAudioToFavorite || (audio => dispatch(actions.addAudioToFavorite(audio.id))),
-  removeAudioFromFavorite:
-    ownProps.removeAudioFromFavorite ||
-    (audio => dispatch(actions.removeAudioFromFavorite(audio.id))),
-  removeAudio: ownProps.removeAudio || (audio => dispatch(actions.removeAudio(audio.id))),
-  onAudioClick: ownProps.onAudioClick || (audio => dispatch(actions.setCurrentPlaying(audio))),
-  openInFolderClick: ownProps.openInFolderClick || (audio => openItemInFolder(audio.path)),
-}))(AudioList);
+export const AudioListWithDefault = R.compose(
+  lifecycleStream,
+  connect(null, (dispatch, ownProps) => ({
+    addAudio: ownProps.addAudio || (audio => dispatch(actions.addAudio(audio))),
+    addAudioToFavorite:
+      ownProps.addAudioToFavorite || (audio => dispatch(actions.addAudioToFavorite(audio.id))),
+    removeAudioFromFavorite:
+      ownProps.removeAudioFromFavorite ||
+      (audio => dispatch(actions.removeAudioFromFavorite(audio.id))),
+    removeAudio: ownProps.removeAudio || (audio => dispatch(actions.removeAudio(audio.id))),
+    onAudioClick: ownProps.onAudioClick || (audio => dispatch(actions.setCurrentPlaying(audio))),
+    openInFolderClick: ownProps.openInFolderClick || (audio => openItemInFolder(audio.path)),
+  })),
+)(AudioList);
 
 class AudioListContainer extends React.Component {
   addAudios = () => {

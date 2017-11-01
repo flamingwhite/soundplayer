@@ -4,6 +4,7 @@ import { Button, Layout, Spin } from 'antd';
 import NavContainer from '../containers/NavContainer';
 import HomePage from '../routes/Home';
 import YoutubeContainer from '../containers/YoutubeContainer';
+import FavoriteAudiosContainer from '../containers/FavoriteAudiosContainer';
 import PlayerController from '../containers/PlayerController';
 
 const { Header, Sider, Content } = Layout;
@@ -20,7 +21,7 @@ export default () => (
         <Content style={{ background: 'white' }}>
           <Switch>
             <Route exact path="/" component={HomePage} />
-            <Route exact path="/favorites" component={HomePage} />
+            <Route exact path="/favorite" component={FavoriteAudiosContainer} />
             <Route exact path="/youtube" component={YoutubeContainer} />
           </Switch>
         </Content>

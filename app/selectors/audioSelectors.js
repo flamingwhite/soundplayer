@@ -30,3 +30,6 @@ export const nextAudioToPlay = (audios, currentPlaying, playMode = 'repeat') => 
 
 export const onlineAudios = state =>
   R.filter(R.pathEq(['groups', 'onlineDownload'], true))(state.audioChunk.audios);
+
+export const favoriteAudios = state =>
+  R.filter(R.pathEq(['groups', 'favorite'], true))(state.audioChunk.audios);

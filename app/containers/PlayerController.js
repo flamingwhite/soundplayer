@@ -2,8 +2,12 @@ import React from 'react';
 import { Button, Slider, Icon } from 'antd';
 import { connect } from 'react-redux';
 import Rx from 'rxjs/Rx';
+import * as R from 'ramda';
 import { actions } from '../reducers/audioActionReducer';
 import styles from '../components/Main.css';
+import { PAUSE_MEDIA, RESUME_PLAY_MEDIA } from '../global/eventConstants';
+import { eventOfType$ } from '../global/eventStream';
+import lifecycleStream from '../hoc/lifecycleStream';
 
 class PlayerController extends React.Component {
   state = {
@@ -12,10 +16,18 @@ class PlayerController extends React.Component {
     playing: true,
   };
   componentDidMount() {
+    const { willUnmount$ } = this.props;
     setTimeout(() => {
       this.audioElm.volume = this.props.volume || 1;
     }, 400);
     this.timeUpdate$.subscribe(currentTime => this.setState({ currentTime }));
+    eventOfType$(PAUSE_MEDIA)
+      .takeUntil(willUnmount$)
+      .subscribe(() => this.pauseClick());
+
+    eventOfType$(RESUME_PLAY_MEDIA)
+      .takeUntil(willUnmount$)
+      .subscribe(() => this.playClick());
   }
   timeUpdate$ = new Rx.Subject()
     .map(() => Math.floor(this.audioElm.currentTime))
@@ -127,15 +139,18 @@ class PlayerController extends React.Component {
   }
 }
 
-export default connect(
-  state => ({
-    currentPlaying: state.audioChunk.currentPlaying,
-    volume: state.audioChunk.volume,
-  }),
-  dispatch => ({
-    playbackEnd: () => dispatch(actions.playbackEnd()),
-    playNextAudio: () => dispatch(actions.playNextAudio()),
-    playPreviousAudio: () => dispatch(actions.playPreviousAudio()),
-    setVolume: volume => dispatch(actions.setVolume(volume)),
-  }),
+export default R.compose(
+  lifecycleStream,
+  connect(
+    state => ({
+      currentPlaying: state.audioChunk.currentPlaying,
+      volume: state.audioChunk.volume,
+    }),
+    dispatch => ({
+      playbackEnd: () => dispatch(actions.playbackEnd()),
+      playNextAudio: () => dispatch(actions.playNextAudio()),
+      playPreviousAudio: () => dispatch(actions.playPreviousAudio()),
+      setVolume: volume => dispatch(actions.setVolume(volume)),
+    }),
+  ),
 )(PlayerController);

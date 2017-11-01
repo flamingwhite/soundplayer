@@ -16,14 +16,17 @@ import {
 import { AudioListWithDefault } from '../containers/AudioListContainer';
 import { actions } from '../reducers/audioActionReducer';
 import { secondsToTimeStr } from '../utils/timeUtil';
-import withSpinner from '../hoc/withSpinner';
+import { PAUSE_MEDIA } from '../global/eventConstants';
+import { publishEvent } from '../global/eventStream';
 
 const getEmbedUrl = url => {
   const id = getYoutubeVideoId(url);
   return `https://www.youtube.com/embed/${id}`;
 };
 
-const YoutubeAudioList = connect(state => ({ audios: onlineAudios(state) }))(AudioListWithDefault);
+const YoutubeAudioList = R.compose(connect(state => ({ audios: onlineAudios(state) })))(
+  AudioListWithDefault,
+);
 
 const defaultState = {
   url: null,
@@ -86,6 +89,7 @@ class YoutubeContainer extends React.Component {
       duration: null,
       timeChunk: [0, 0],
     });
+    publishEvent(PAUSE_MEDIA);
 
     getFilenameByUrl(url).then(name => {
       console.log('name fetch', name);
