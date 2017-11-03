@@ -8,6 +8,7 @@ import styles from '../components/Main.css';
 import { PAUSE_MEDIA, RESUME_PLAY_MEDIA } from '../global/eventConstants';
 import { eventOfType$ } from '../global/eventStream';
 import lifecycleStream from '../hoc/lifecycleStream';
+import { secondsToTimeStr } from '../utils/timeUtil';
 
 class PlayerController extends React.Component {
   state = {
@@ -97,9 +98,9 @@ class PlayerController extends React.Component {
                 }}
                 style={{ width: 500 }}
               />
-              <span
-                style={{ marginLeft: 10, marginRight: 20 }}
-              >{`${currentTime}/${duration}`}</span>
+              <span style={{ marginLeft: 10, marginRight: 20 }}>{`${secondsToTimeStr(
+                currentTime,
+              )}/${secondsToTimeStr(duration)}`}</span>
               <Icon type="sound" style={{ fontSize: 15 }} />
               <Slider
                 min={0}
