@@ -3,7 +3,7 @@ import { Button, Slider, Icon } from 'antd';
 import { connect } from 'react-redux';
 import Rx from 'rxjs/Rx';
 import * as R from 'ramda';
-import { actions } from '../reducers/audioActionReducer';
+import { actions, playModes } from '../reducers/audioActionReducer';
 import styles from '../components/Main.css';
 import { PAUSE_MEDIA, RESUME_PLAY_MEDIA } from '../global/eventConstants';
 import { eventOfType$ } from '../global/eventStream';
@@ -50,6 +50,8 @@ class PlayerController extends React.Component {
       setVolume,
       playNextAudio,
       playPreviousAudio,
+      setPlayMode,
+      playModeId,
     } = this.props;
     const { currentTime, duration, playing } = this.state;
     const { playClick, pauseClick } = this;
@@ -119,6 +121,8 @@ class PlayerController extends React.Component {
           </div>
         )}
 
+        {playModes.map(mode => <Button onClick={() => setPlayMode(mode.id)}>{mode.label}</Button>)}
+
         {currentPlaying && (
           <span>
             {currentPlaying.title} --- {currentPlaying.artist}{' '}
@@ -126,8 +130,9 @@ class PlayerController extends React.Component {
         )}
         {currentPlaying && (
           <audio
+            loop={playModeId === 'repeat'}
             ref={elm => (this.audioElm = elm)}
-            onEnded={playbackEnd}
+            onEnded={() => (playModeId === 'repeat' ? null : playbackEnd())}
             onLoadedMetadata={e =>
               this.setState({ duration: Math.floor(e.nativeEvent.target.duration) })}
             onTimeUpdate={e => this.timeUpdate$.next(e.nativeEvent.target.currentTIme)}
@@ -146,12 +151,14 @@ export default R.compose(
     state => ({
       currentPlaying: state.audioChunk.currentPlaying,
       volume: state.audioChunk.volume,
+      playModeId: state.audioChunk.playModeId,
     }),
     dispatch => ({
       playbackEnd: () => dispatch(actions.playbackEnd()),
       playNextAudio: () => dispatch(actions.playNextAudio()),
       playPreviousAudio: () => dispatch(actions.playPreviousAudio()),
       setVolume: volume => dispatch(actions.setVolume(volume)),
+      setPlayMode: playModeId => dispatch(actions.setPlayMode(playModeId)),
     }),
   ),
 )(PlayerController);

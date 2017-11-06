@@ -1,9 +1,8 @@
 import * as R from 'ramda';
 import { combineEpics } from 'redux-observable';
-import createUUID from '../utils/createUUID';
 import { actionCreator } from './actionHelper';
 import { SET_CURRENT_PLAYING } from './audioActionReducer';
-import { getMd5 } from '../utils/getLocalFiles';
+import { getMd5 } from '../utils/idUtil';
 
 // const initialState = {
 //   groups: [],

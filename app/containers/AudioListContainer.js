@@ -5,7 +5,7 @@ import { Button, Table, Icon, Divider } from 'antd';
 import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
 import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
-import { getMd5 } from '../utils/getLocalFiles';
+import { getMd5 } from '../utils/idUtil';
 import lifecycleStream from '../hoc/lifecycleStream';
 
 const { Column, ColumnGroup } = Table;

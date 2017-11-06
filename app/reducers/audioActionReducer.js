@@ -3,19 +3,23 @@ import { combineEpics } from 'redux-observable';
 import { getAudioTags } from '../utils/audioUtil';
 import { actionCreator } from './actionHelper';
 import { getNextAudioToPlay, nextAudioToPlay } from '../selectors/audioSelectors';
-import { getMd5 } from '../utils/getLocalFiles';
+import { getMd5 } from '../utils/idUtil';
 import { getNameByPath } from '../utils/audioUtil';
 
 const initialState = {
   audios: [],
   volume: 1,
   currentPlaying: null,
-  playModeId: 'repeat',
+  playModeId: 'seq',
   history: [],
   historyIndex: 0,
 };
 
 export const playModes = [
+  {
+    id: 'seq',
+    label: 'Sequence',
+  },
   {
     id: 'repeat',
     label: 'Repeat',
@@ -73,27 +77,32 @@ export const actions = {
   mediaDownloaded: actionCreator(MEDIA_DOWNLOADED),
 };
 
-const audioPartHanlder = {
-  [ADD_AUDIO]: (state, { payload }) => R.unionWith(R.eqProps('id'), state, [payload]),
-  [ADD_MULTIPLE_AUDIOS]: (state, { payload }) => R.unionWith(R.eqProps('id'), state, payload),
-  [UPDATE_AUDIO_INFO]: (state, { payload }) =>
-    // R.map(au => (au.id === payload.id ? { ...au, ...payload } : au))(state),
-    R.when(R.propEq('id', payload.id), au => ({ ...au, ...payload }))(state),
-  [UPDATE_MULTIPLE_AUDIO_INFO]: (state, { payload }) =>
-    R.map(au => {
-      const find = R.find(R.propEq('id', au.id), payload);
-      return find ? { ...au, ...find } : au;
-    })(state),
-  [ADD_AUDIO_TO_GROUP]: (state, { payload }) =>
-    R.map(R.when(R.propEq('id', payload.audioId), R.assocPath(['groups', payload.groupId], true)))(
-      state,
-    ),
-  [REMOVE_AUDIO_FROM_GROUP]: (state, { payload }) =>
-    R.when(R.propEq('id', payload.audioId), R.dissocPath(['groups', payload.groupId]))(state),
-  [SET_AUDIO_GROUPS]: (state, { payload }) =>
-    R.map(R.when(R.propEq('id', payload.audioId)), R.assoc('groups', payload.groupIds))(state),
-  [REMOVE_AUDIO]: (state, { payload }) => R.reject(R.propEq('id', payload))(state),
-};
+// const audioPartHanlder = {
+//   [ADD_AUDIO]: (state, { payload }) => R.unionWith(R.eqProps('id'), state, [payload]),
+//   [ADD_MULTIPLE_AUDIOS]: (state, { payload }) => R.unionWith(R.eqProps('id'), state, payload),
+//   [UPDATE_AUDIO_INFO]: (state, { payload }) =>
+//     // R.map(au => (au.id === payload.id ? { ...au, ...payload } : au))(state),
+//     R.when(R.propEq('id', payload.id), au => ({ ...au, ...payload }))(state),
+//   [UPDATE_MULTIPLE_AUDIO_INFO]: (state, { payload }) =>
+//     R.map(au => {
+//       const find = R.find(R.propEq('id', au.id), payload);
+//       return find ? { ...au, ...find } : au;
+//     })(state),
+//   [ADD_AUDIO_TO_GROUP]: (state, { payload }) =>
+//     R.map(R.when(R.propEq('id', payload.audioId), R.assocPath(['groups', payload.groupId], true)))(
+//       state,
+//     ),
+//   [REMOVE_AUDIO_FROM_GROUP]: (state, { payload }) =>
+//     R.when(R.propEq('id', payload.audioId), R.dissocPath(['groups', payload.groupId]))(state),
+//   [SET_AUDIO_GROUPS]: (state, { payload }) =>
+//     R.map(R.when(R.propEq('id', payload.audioId)), R.assoc('groups', payload.groupIds))(state),
+//   [REMOVE_AUDIO]: (state, { payload }) => R.reject(R.propEq('id', payload))(state),
+//   [REMOVE_ALL_AUDIO]: R.assoc('audios', []),
+// };
+
+// const volumnHandler = {
+//   [SET_VOLUME]: (state, { payload }) => payload,
+// }
 
 const actionHandler = {
   [SET_VOLUME]: (state, { payload }) => R.assoc('volume', payload, state),
@@ -229,14 +238,14 @@ const nextAudioEpic = (action$, store) =>
     .map(() => {
       const { audioChunk, groupChunk } = store.getState();
       const { currentPlayingGroup } = groupChunk;
-      const { currentPlaying, audios } = audioChunk;
+      const { currentPlaying, audios, playModeId } = audioChunk;
       const audiosInPlayingGroup = R.filter(
         R.either(
           R.always(currentPlayingGroup === 'all'),
           R.pathEq(['groups', currentPlayingGroup], true),
         ),
       )(audios);
-      return nextAudioToPlay(audiosInPlayingGroup, currentPlaying);
+      return nextAudioToPlay(audiosInPlayingGroup, currentPlaying, playModeId);
     })
     .map(actions.setCurrentPlaying);
 

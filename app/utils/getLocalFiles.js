@@ -1,4 +1,3 @@
-import crypto from 'crypto';
 import * as R from 'ramda';
 import { shell, remote } from 'electron';
 import sh from 'shelljs';
@@ -23,11 +22,4 @@ export const localAudioPaths = (options = {}) => {
 };
 
 export const openItemInFolder = path => shell.showItemInFolder(path);
-
-export const getMd5 = v =>
-  crypto
-    .createHash('md5')
-    .update(v)
-    .digest('hex');
-
 export const replaceFileSync = (src, dest) => sh.mv(src, dest);
