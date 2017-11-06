@@ -139,8 +139,10 @@ class PlayerController extends React.Component {
             // onEnded={() => (playModeId === 'repeat' ? null : playbackEnd())}
             onEnded={() => {
               playbackEnd();
-              this.audioElm.currentTime = 0;
-              this.audioElm.play();
+              setTimeout(() => {
+                this.audioElm.currentTime = 0;
+                this.audioElm.play();
+              });
             }}
             onLoadedMetadata={e =>
               this.setState({ duration: Math.floor(e.nativeEvent.target.duration) })}

@@ -133,7 +133,9 @@ const actionHandler = {
     })(state),
   [REMOVE_AUDIO_FROM_GROUP]: (state, { payload }) =>
     R.evolve({
-      audios: R.when(R.propEq('id', payload.audioId), R.dissocPath(['groups', payload.groupId])),
+      audios: R.map(
+        R.when(R.propEq('id', payload.audioId), R.dissocPath(['groups', payload.groupId])),
+      ),
     })(state),
   [SET_AUDIO_GROUPS]: (state, { payload }) =>
     R.evolve({

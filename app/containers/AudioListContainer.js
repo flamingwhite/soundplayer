@@ -1,12 +1,14 @@
 import React from 'react';
 import * as R from 'ramda';
 import { connect } from 'react-redux';
-import { Button, Table, Icon, Divider } from 'antd';
+import { Button, Table, Icon, Divider, Popover, Checkbox } from 'antd';
 import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
 import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
 import { getMd5 } from '../utils/idUtil';
 import lifecycleStream from '../hoc/lifecycleStream';
+import { groupListSelector } from '../selectors/groupSelector';
+import { visibleAudios } from '../selectors/audioSelectors';
 
 const { Column, ColumnGroup } = Table;
 
@@ -20,6 +22,9 @@ export const AudioList = props => {
     removeAudioFromFavorite,
     openInFolderClick,
     removeAudio,
+    addAudioToGroup,
+    removeAudioFromGroup,
+    groupList,
   } = props;
   return (
     <Table
@@ -48,7 +53,7 @@ export const AudioList = props => {
       <Column
         title="Title"
         dataIndex="title"
-        width="60%"
+        width="50%"
         render={(text, record) => record.title || record.name}
       />
       <Column title="Artist" dataIndex="artist" width={200} />
@@ -56,6 +61,30 @@ export const AudioList = props => {
         title="Action"
         render={(text, record) => (
           <span>
+            <Popover
+              trigger="click"
+              title="Set Group"
+              content={
+                <div>
+                  {groupList.map(group => (
+                    <Checkbox
+                      checked={R.pathEq(['groups', group.id], true, record)}
+                      onChange={e => {
+                        const checked = e.target.checked;
+                        console.log('checked ', checked);
+                        return checked
+                          ? addAudioToGroup(record.id, group.id)
+                          : removeAudioFromGroup(record.id, group.id);
+                      }}
+                    >
+                      {group.name}
+                    </Checkbox>
+                  ))}
+                </div>
+              }
+            >
+              <Icon type="folder" />
+            </Popover>
             <Icon
               type="folder"
               onClick={() => openInFolderClick(record)}
@@ -71,17 +100,28 @@ export const AudioList = props => {
 
 export const AudioListWithDefault = R.compose(
   lifecycleStream,
-  connect(null, (dispatch, ownProps) => ({
-    addAudio: ownProps.addAudio || (audio => dispatch(actions.addAudio(audio))),
-    addAudioToFavorite:
-      ownProps.addAudioToFavorite || (audio => dispatch(actions.addAudioToFavorite(audio.id))),
-    removeAudioFromFavorite:
-      ownProps.removeAudioFromFavorite ||
-      (audio => dispatch(actions.removeAudioFromFavorite(audio.id))),
-    removeAudio: ownProps.removeAudio || (audio => dispatch(actions.removeAudio(audio.id))),
-    onAudioClick: ownProps.onAudioClick || (audio => dispatch(actions.setCurrentPlaying(audio))),
-    openInFolderClick: ownProps.openInFolderClick || (audio => openItemInFolder(audio.path)),
-  })),
+  connect(
+    (state, ownProps) => ({
+      groupList: ownProps.groupList || groupListSelector(state),
+    }),
+    (dispatch, ownProps) => ({
+      addAudio: ownProps.addAudio || (audio => dispatch(actions.addAudio(audio))),
+      addAudioToFavorite:
+        ownProps.addAudioToFavorite || (audio => dispatch(actions.addAudioToFavorite(audio.id))),
+      removeAudioFromFavorite:
+        ownProps.removeAudioFromFavorite ||
+        (audio => dispatch(actions.removeAudioFromFavorite(audio.id))),
+      removeAudio: ownProps.removeAudio || (audio => dispatch(actions.removeAudio(audio.id))),
+      onAudioClick: ownProps.onAudioClick || (audio => dispatch(actions.setCurrentPlaying(audio))),
+      openInFolderClick: ownProps.openInFolderClick || (audio => openItemInFolder(audio.path)),
+      addAudioToGroup:
+        ownProps.addAudioToGroup ||
+        ((audioId, groupId) => dispatch(actions.addAudioToGroup({ audioId, groupId }))),
+      removeAudioFromGroup:
+        ownProps.removeAudioFromGroup ||
+        ((audioId, groupId) => dispatch(actions.removeAudioFromGroup({ audioId, groupId }))),
+    }),
+  ),
 )(AudioList);
 
 class AudioListContainer extends React.Component {
@@ -112,7 +152,7 @@ class AudioListContainer extends React.Component {
 
 export default connect(
   state => ({
-    audios: state.audioChunk.audios,
+    audios: visibleAudios(state),
   }),
   dispatch => ({
     removeAllAudio: () => dispatch(actions.removeAllAudio()),

@@ -20,6 +20,10 @@ const initialState = {
       type: 'default',
       name: 'Favorites',
     },
+    onlineDownload: {
+      type: 'default',
+      name: 'Online Download',
+    },
   },
   activeGroup: 'all',
   currentPlayingGroup: 'all',
@@ -40,9 +44,9 @@ export const actions = {
 const actionHandler = {
   [ADD_GROUP]: (state, { payload }) =>
     R.evolve({
-      groupSet: R.assoc(getMd5(payload.name), {
+      groupSet: R.assoc(getMd5(payload), {
         type: 'custom',
-        name: payload.name,
+        name: payload,
       }),
     })(state),
   [REMOVE_GROUP]: (state, { payload }) =>

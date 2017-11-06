@@ -2,10 +2,9 @@ import React from 'react';
 import { Switch, Route } from 'react-router';
 import { Button, Layout, Spin } from 'antd';
 import NavContainer from '../containers/NavContainer';
-import HomePage from '../routes/Home';
 import YoutubeContainer from '../containers/YoutubeContainer';
-import FavoriteAudiosContainer from '../containers/FavoriteAudiosContainer';
 import PlayerController from '../containers/PlayerController';
+import AudioListContainer from '../containers/AudioListContainer';
 
 const { Header, Sider, Content } = Layout;
 export default () => (
@@ -20,9 +19,8 @@ export default () => (
         </Sider>
         <Content style={{ background: 'white' }}>
           <Switch>
-            <Route exact path="/" component={HomePage} />
-            <Route exact path="/favorite" component={FavoriteAudiosContainer} />
             <Route exact path="/youtube" component={YoutubeContainer} />
+            <Route component={AudioListContainer} />
           </Switch>
         </Content>
       </Layout>

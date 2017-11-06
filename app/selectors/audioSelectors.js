@@ -37,3 +37,13 @@ export const onlineAudios = state =>
 
 export const favoriteAudios = state =>
   R.filter(R.pathEq(['groups', 'favorite'], true))(state.audioChunk.audios);
+
+export const visibleAudios = state => {
+  const { audioChunk, groupChunk } = state;
+  const { activeGroup } = groupChunk;
+  const { audios } = audioChunk;
+  return R.filter(
+    R.either(R.always(activeGroup === 'all'), R.pathEq(['groups', activeGroup], true)),
+    audios,
+  );
+};

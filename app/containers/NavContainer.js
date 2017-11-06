@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Input, Button, Menu, Icon } from 'antd';
 import * as R from 'ramda';
 import { actions } from '../reducers/groupActionReducer';
+import GroupContainer from './GroupContainer';
 import { withState } from '../utils/withState';
 import lifecycleStream from '../hoc/lifecycleStream';
 import { publishEvent } from '../global/eventStream';
@@ -60,6 +61,8 @@ class NavContainer extends React.Component {
         <Link to="/youtube" onClick={() => setActiveGroup('onlineDownload')}>
           <Button>WebDownload</Button>
         </Link>
+
+        <GroupContainer />
 
         <Button style={{ marginTop: 20, display: 'block' }}>{this.props.count}</Button>
         <Button onClick={v => this.props.inc(3, 4)}>inc</Button>
