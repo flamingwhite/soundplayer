@@ -80,13 +80,16 @@ const removeGroupEpic = (action$, store) =>
     .filter(groupId =>
       R.pathEq(['groupChunk', 'groupSet', groupId, 'type'], 'custom', store.getState()),
     )
-    .flatMap(groupId =>
-      Rx.Observable
-        .of(groupId)
-        .filter(gid => R.pathEq(['groupChunk', 'activeGroup'], gid, store.getState()))
-        .map(() => actions.setActiveGroup('all'))
-        .startWith(removeGroupPrivate(groupId)),
-    );
+    .flatMap(groupId => {
+      const activeGroup = R.path(['groupChunk', 'activeGroup'], store.getState());
+      const currentPlayingGroup = R.path(['groupChunk', 'currentPlayingGroup'], store.getState());
+
+      console.log('gorupi', groupId, activeGroup, currentPlayingGroup);
+      const actionList = [removeGroupPrivate(groupId)];
+      if (groupId === activeGroup) actionList.push(actions.setActiveGroup('all'));
+      if (groupId === currentPlayingGroup) actionList.push(actions.setCurrentPlayingGroup('all'));
+      return actionList;
+    });
 
 export const groupEpics = combineEpics(setCurrentPlayingAudioGroupEpic, removeGroupEpic);
 

@@ -26,7 +26,13 @@ class GroupContainer extends Component {
             <Link to={`/${group.id}`} onClick={() => setActiveGroup(group.id)}>
               <div>
                 <Button>{group.name}</Button>
-                <Icon type="close" onClick={() => removeGroup(group.id)} />
+                <Icon
+                  type="close"
+                  onClick={e => {
+                    e.stopPropagation();
+                    removeGroup(group.id);
+                  }}
+                />
               </div>
             </Link>
           </div>

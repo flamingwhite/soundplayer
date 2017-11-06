@@ -52,12 +52,6 @@ class NavContainer extends React.Component {
           </Menu.Item>
         </Menu>
         <GroupList list={groups} />
-        <Link to="/" onClick={() => setActiveGroup('all')}>
-          <Button>All</Button>
-        </Link>
-        <Link to="/favorite" onClick={() => setActiveGroup('favorite')}>
-          <Button>Favorite</Button>
-        </Link>
         <Link to="/youtube" onClick={() => setActiveGroup('onlineDownload')}>
           <Button>WebDownload</Button>
         </Link>
@@ -120,14 +114,3 @@ export default R.compose(
     }),
   ),
 )(NavContainer);
-
-// export default connect(
-//   state => ({
-//     groups: state.groupChunk.groups,
-//     activeGroup: state.groupChunk.activeGroup,
-//   }),
-//   dispatch => ({
-//     newGroup: name => dispatch(actions.addGroup(name)),
-//     setActiveGroup: group => dispatch(actions.setActiveGroup(group)),
-//   }),
-// )(newNav);
