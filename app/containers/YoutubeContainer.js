@@ -13,7 +13,7 @@ import {
   getFilenameByUrl,
   getDurationByUrl,
 } from '../utils/mediaUtil';
-import { AudioListWithDefault } from '../containers/AudioListContainer';
+import AudioListContainer from '../containers/AudioListContainer';
 import { actions } from '../reducers/audioActionReducer';
 import { secondsToTimeStr } from '../utils/timeUtil';
 import { PAUSE_MEDIA } from '../global/eventConstants';
@@ -24,9 +24,9 @@ const getEmbedUrl = url => {
   return `https://www.youtube.com/embed/${id}`;
 };
 
-const YoutubeAudioList = R.compose(connect(state => ({ audios: onlineAudios(state) })))(
-  AudioListWithDefault,
-);
+// const YoutubeAudioList = R.compose(connect(state => ({ audios: onlineAudios(state) })))(
+//   AudioListWithDefault,
+// );
 
 const defaultState = {
   url: null,
@@ -72,7 +72,8 @@ class YoutubeContainer extends React.Component {
       startDuration,
     })
       .then(mediaDownloaded)
-      .then(() => this.setState({ loading: false }))
+      .then(() => this.setState({ loading: false, showMediaModal: false }))
+      .then(() => message.success('Media Added'))
       .catch(e => {
         this.setState({ loading: false });
         message.error('Something went wrong!');
@@ -108,7 +109,7 @@ class YoutubeContainer extends React.Component {
         <video width="320" height="240" controls>
           <source src={`file://${getVideoFolder()}/testvideo.mp4`} />
         </video>
-        <YoutubeAudioList />
+        <AudioListContainer />
         {showMediaModal && (
           <Modal
             title="Add Online"

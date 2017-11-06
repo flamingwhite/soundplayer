@@ -5,12 +5,6 @@ import { actionCreator } from './actionHelper';
 import { SET_CURRENT_PLAYING } from './audioActionReducer';
 import { getMd5 } from '../utils/idUtil';
 
-// const initialState = {
-//   groups: [],
-//   activeGroup: { type: 'default', id: 'all' },
-//   currentPlayingGroup: { type: 'default', id: 'all' },
-// };
-
 const initialState = {
   groupSet: {
     all: {
@@ -81,10 +75,7 @@ const removeGroupEpic = (action$, store) =>
       R.pathEq(['groupChunk', 'groupSet', groupId, 'type'], 'custom', store.getState()),
     )
     .flatMap(groupId => {
-      const activeGroup = R.path(['groupChunk', 'activeGroup'], store.getState());
-      const currentPlayingGroup = R.path(['groupChunk', 'currentPlayingGroup'], store.getState());
-
-      console.log('gorupi', groupId, activeGroup, currentPlayingGroup);
+      const { activeGroup, currentPlayingGroup } = store.getState().groupChunk;
       const actionList = [removeGroupPrivate(groupId)];
       if (groupId === activeGroup) actionList.push(actions.setActiveGroup('all'));
       if (groupId === currentPlayingGroup) actionList.push(actions.setCurrentPlayingGroup('all'));

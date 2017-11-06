@@ -77,33 +77,6 @@ export const actions = {
   mediaDownloaded: actionCreator(MEDIA_DOWNLOADED),
 };
 
-// const audioPartHanlder = {
-//   [ADD_AUDIO]: (state, { payload }) => R.unionWith(R.eqProps('id'), state, [payload]),
-//   [ADD_MULTIPLE_AUDIOS]: (state, { payload }) => R.unionWith(R.eqProps('id'), state, payload),
-//   [UPDATE_AUDIO_INFO]: (state, { payload }) =>
-//     // R.map(au => (au.id === payload.id ? { ...au, ...payload } : au))(state),
-//     R.when(R.propEq('id', payload.id), au => ({ ...au, ...payload }))(state),
-//   [UPDATE_MULTIPLE_AUDIO_INFO]: (state, { payload }) =>
-//     R.map(au => {
-//       const find = R.find(R.propEq('id', au.id), payload);
-//       return find ? { ...au, ...find } : au;
-//     })(state),
-//   [ADD_AUDIO_TO_GROUP]: (state, { payload }) =>
-//     R.map(R.when(R.propEq('id', payload.audioId), R.assocPath(['groups', payload.groupId], true)))(
-//       state,
-//     ),
-//   [REMOVE_AUDIO_FROM_GROUP]: (state, { payload }) =>
-//     R.when(R.propEq('id', payload.audioId), R.dissocPath(['groups', payload.groupId]))(state),
-//   [SET_AUDIO_GROUPS]: (state, { payload }) =>
-//     R.map(R.when(R.propEq('id', payload.audioId)), R.assoc('groups', payload.groupIds))(state),
-//   [REMOVE_AUDIO]: (state, { payload }) => R.reject(R.propEq('id', payload))(state),
-//   [REMOVE_ALL_AUDIO]: R.assoc('audios', []),
-// };
-
-// const volumnHandler = {
-//   [SET_VOLUME]: (state, { payload }) => payload,
-// }
-
 const actionHandler = {
   [SET_VOLUME]: (state, { payload }) => R.assoc('volume', payload, state),
   [ADD_AUDIO]: (state, { payload }) =>
