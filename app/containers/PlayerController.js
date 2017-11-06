@@ -30,6 +30,7 @@ class PlayerController extends React.Component {
       .takeUntil(willUnmount$)
       .subscribe(() => this.playClick());
   }
+
   timeUpdate$ = new Rx.Subject()
     .map(() => Math.floor(this.audioElm.currentTime))
     .distinctUntilChanged();
@@ -121,7 +122,11 @@ class PlayerController extends React.Component {
           </div>
         )}
 
-        {playModes.map(mode => <Button onClick={() => setPlayMode(mode.id)}>{mode.label}</Button>)}
+        {playModes.map(mode => (
+          <Button key={mode.id} onClick={() => setPlayMode(mode.id)}>
+            {mode.label}
+          </Button>
+        ))}
 
         {currentPlaying && (
           <span>
@@ -130,9 +135,13 @@ class PlayerController extends React.Component {
         )}
         {currentPlaying && (
           <audio
-            loop={playModeId === 'repeat'}
             ref={elm => (this.audioElm = elm)}
-            onEnded={() => (playModeId === 'repeat' ? null : playbackEnd())}
+            // onEnded={() => (playModeId === 'repeat' ? null : playbackEnd())}
+            onEnded={() => {
+              playbackEnd();
+              this.audioElm.currentTime = 0;
+              this.audioElm.play();
+            }}
             onLoadedMetadata={e =>
               this.setState({ duration: Math.floor(e.nativeEvent.target.duration) })}
             onTimeUpdate={e => this.timeUpdate$.next(e.nativeEvent.target.currentTIme)}

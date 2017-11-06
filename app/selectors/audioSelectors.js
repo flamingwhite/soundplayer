@@ -1,4 +1,5 @@
 import * as R from 'ramda';
+import { randomItem } from '../utils/dataUtil';
 
 const getAudiosByGroup = (state, group) => {
   const { audioChunk } = state;
@@ -25,6 +26,8 @@ export const getNextAudioToPlay = state => {
 
 export const nextAudioToPlay = (audios, currentPlaying, playMode = 'seq') => {
   if (playMode === 'repeat') return currentPlaying;
+  if (audios.length === 1) return currentPlaying;
+  if (playMode === 'random') return randomItem(audios);
   const index = R.findIndex(R.propEq('id', currentPlaying.id), audios);
   return audios[index === audios.length - 1 ? 0 : index + 1];
 };
