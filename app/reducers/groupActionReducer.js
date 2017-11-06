@@ -1,3 +1,4 @@
+import Rx from 'rxjs/Rx';
 import * as R from 'ramda';
 import { combineEpics } from 'redux-observable';
 import { actionCreator } from './actionHelper';
@@ -36,10 +37,13 @@ export const SET_CURRENT_PLAYING_GROUP = 'SET_CURRENT_PLAYING_GROUP';
 
 export const actions = {
   addGroup: actionCreator(ADD_GROUP),
-  removeGroup: () => actionCreator(REMOVE_GROUP, null),
+  removeGroup: actionCreator(REMOVE_GROUP),
   setActiveGroup: actionCreator(SET_GROUP_ACTIVE),
   setCurrentPlayingGroup: actionCreator(SET_CURRENT_PLAYING_GROUP),
 };
+
+const REMOVE_GROUP_PRIVATE = 'REMOVE_GROUP_PRIVATE';
+const removeGroupPrivate = actionCreator(REMOVE_GROUP_PRIVATE);
 
 const actionHandler = {
   [ADD_GROUP]: (state, { payload }) =>
@@ -49,9 +53,9 @@ const actionHandler = {
         name: payload,
       }),
     })(state),
-  [REMOVE_GROUP]: (state, { payload }) =>
+  [REMOVE_GROUP_PRIVATE]: (state, { payload }) =>
     R.evolve({
-      groupSet: R.dissoc(payload.groupId),
+      groupSet: R.dissoc(payload),
     })(state),
   [SET_GROUP_ACTIVE]: (state, { payload }) => R.assoc('activeGroup', payload, state),
   [SET_CURRENT_PLAYING_GROUP]: (state, { payload }) =>
@@ -69,6 +73,21 @@ const setCurrentPlayingAudioGroupEpic = (action$, store) =>
     .map(() => store.getState().groupChunk.activeGroup)
     .map(actions.setCurrentPlayingGroup);
 
-export const groupEpics = combineEpics(setCurrentPlayingAudioGroupEpic);
+const removeGroupEpic = (action$, store) =>
+  action$
+    .ofType(REMOVE_GROUP)
+    .pluck('payload')
+    .filter(groupId =>
+      R.pathEq(['groupChunk', 'groupSet', groupId, 'type'], 'custom', store.getState()),
+    )
+    .flatMap(groupId =>
+      Rx.Observable
+        .of(groupId)
+        .filter(gid => R.pathEq(['groupChunk', 'activeGroup'], gid, store.getState()))
+        .map(() => actions.setActiveGroup('all'))
+        .startWith(removeGroupPrivate(groupId)),
+    );
+
+export const groupEpics = combineEpics(setCurrentPlayingAudioGroupEpic, removeGroupEpic);
 
 export default groupReducer;

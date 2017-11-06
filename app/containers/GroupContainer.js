@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Input, Button } from 'antd';
+import { Input, Button, Icon } from 'antd';
 import * as R from 'ramda';
 import { actions } from '../reducers/groupActionReducer';
 import { groupListSelector } from '../selectors/groupSelector';
@@ -24,7 +24,10 @@ class GroupContainer extends Component {
         {groupList.map(group => (
           <div>
             <Link to={`/${group.id}`} onClick={() => setActiveGroup(group.id)}>
-              <Button>{group.name}</Button>
+              <div>
+                <Button>{group.name}</Button>
+                <Icon type="close" onClick={() => removeGroup(group.id)} />
+              </div>
             </Link>
           </div>
         ))}

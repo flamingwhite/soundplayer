@@ -69,13 +69,10 @@ export const AudioList = props => {
                   {groupList.map(group => (
                     <Checkbox
                       checked={R.pathEq(['groups', group.id], true, record)}
-                      onChange={e => {
-                        const checked = e.target.checked;
-                        console.log('checked ', checked);
-                        return checked
+                      onChange={e =>
+                        e.target.checked
                           ? addAudioToGroup(record.id, group.id)
-                          : removeAudioFromGroup(record.id, group.id);
-                      }}
+                          : removeAudioFromGroup(record.id, group.id)}
                     >
                       {group.name}
                     </Checkbox>
