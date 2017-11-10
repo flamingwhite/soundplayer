@@ -7,7 +7,7 @@ import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
 import { getMd5 } from '../utils/idUtil';
 import lifecycleStream from '../hoc/lifecycleStream';
-import { groupListSelector } from '../selectors/groupSelector';
+import { groupListSelector, groupListForDropdownSelector } from '../selectors/groupSelector';
 import { visibleAudios } from '../selectors/audioSelectors';
 
 const { Column, ColumnGroup } = Table;
@@ -24,7 +24,7 @@ export const AudioList = props => {
     removeAudio,
     addAudioToGroup,
     removeAudioFromGroup,
-    groupList,
+    groupListForDropdown,
   } = props;
   return (
     <Table
@@ -66,8 +66,9 @@ export const AudioList = props => {
               title="Set Group"
               content={
                 <div>
-                  {groupList.map(group => (
+                  {groupListForDropdown.map(group => (
                     <Checkbox
+                      key={group.id}
                       checked={R.pathEq(['groups', group.id], true, record)}
                       onChange={e =>
                         e.target.checked
@@ -100,6 +101,7 @@ export const AudioListWithDefault = R.compose(
   connect(
     (state, ownProps) => ({
       groupList: ownProps.groupList || groupListSelector(state),
+      groupListForDropdown: ownProps.groupListForDropdown || groupListForDropdownSelector(state),
     }),
     (dispatch, ownProps) => ({
       addAudio: ownProps.addAudio || (audio => dispatch(actions.addAudio(audio))),

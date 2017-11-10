@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Input, Button, Menu, Icon } from 'antd';
 import * as R from 'ramda';
+import { compose, branch } from 'recompose';
 import { actions } from '../reducers/groupActionReducer';
 import GroupContainer from './GroupContainer';
 import { withState } from '../utils/withState';
@@ -20,9 +21,6 @@ export const GroupList = ({ list }) => (
 );
 
 class NavContainer extends React.Component {
-  state = {
-    groupInputValue: '',
-  };
   componentDidMount() {
     this.props.didMount$.subscribe(() => console.log('didmount subscribe'));
   }
@@ -36,7 +34,6 @@ class NavContainer extends React.Component {
   };
 
   render() {
-    const { groupInputValue } = this.state;
     const { groups = [], newGroup, activeGroup, setActiveGroup } = this.props;
     console.log(this.props, 'from navcontainer');
     return (
@@ -66,11 +63,6 @@ class NavContainer extends React.Component {
         </Button>
         <Button onClick={() => publishEvent(PAUSE_MEDIA)}>Pause_Media</Button>
         <Button onClick={() => publishEvent(RESUME_PLAY_MEDIA)}>RESUME_PLAY</Button>
-        {/*
-        <Input
-          value={groupInputValue}
-          onChange={e => this.setState({ groupInputValue: e.target.value })}
-        />*/}
       </div>
     );
   }

@@ -10,6 +10,7 @@ const initialState = {
     all: {
       type: 'default',
       name: 'All',
+      hideInDropdown: true,
     },
     favorite: {
       type: 'default',
@@ -18,6 +19,7 @@ const initialState = {
     onlineDownload: {
       type: 'default',
       name: 'Online Download',
+      hideInDropdown: true,
     },
   },
   activeGroup: 'all',

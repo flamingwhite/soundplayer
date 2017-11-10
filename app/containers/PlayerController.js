@@ -20,7 +20,7 @@ class PlayerController extends React.Component {
     const { willUnmount$ } = this.props;
     setTimeout(() => {
       this.audioElm.volume = this.props.volume || 1;
-    }, 400);
+    }, 800);
     this.timeUpdate$.subscribe(currentTime => this.setState({ currentTime }));
     eventOfType$(PAUSE_MEDIA)
       .takeUntil(willUnmount$)
