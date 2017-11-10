@@ -27,31 +27,53 @@ export const AudioList = props => {
     removeAudioFromGroup,
     groupListForDropdown,
   } = props;
+  const isCurrentPlaying = audio => R.eqProps('id', audio, currentPlaying);
+  const ifElseValue = (pre, trueValue, falseValue) => (pre ? trueValue : falseValue);
+
   return (
     <Table
       size="small"
       pagination={false}
       dataSource={audios}
       onRowDoubleClick={onAudioClick}
-      rowClassName={row => (row.id === currentPlaying.id ? 'row-active' : '')}
+      rowClassName={row => ifElseValue(isCurrentPlaying(row), 'row-active', '')}
       rowKey={row => row.id}
     >
       <Column
+        width={22}
         render={(text, record, index) => (
           <span>
-            <span style={{ marginRight: 10 }}>{index < 9 ? `0${index + 1}` : index + 1}</span>
-            {R.path(['groups', 'favorite'], record) ? (
-              <Icon
-                type="heart"
-                style={{ color: 'red' }}
-                onClick={() => removeAudioFromFavorite(record)}
-              />
-            ) : (
-              <Icon type="heart-o" onClick={() => addAudioToFavorite(record)} />
+            {ifElseValue(
+              isCurrentPlaying(record),
+              <i className="material-icons" style={{ color: 'red' }}>
+                volume_up
+              </i>,
+              <span style={{ marginLeft: 4 }}>{index < 9 ? `0${index + 1}` : index + 1}</span>,
             )}
           </span>
         )}
       />
+      <Column
+        width={22}
+        render={(text, record) => (
+          <span>
+            {ifElseValue(
+              R.path(['groups', 'favorite'], record),
+              <i
+                className="material-icons"
+                style={{ color: 'red' }}
+                onClick={() => removeAudioFromFavorite(record)}
+              >
+                favorite
+              </i>,
+              <i className="material-icons" onClick={() => addAudioToFavorite(record)}>
+                favorite_border
+              </i>,
+            )}
+          </span>
+        )}
+      />
+
       <Column
         title="Title"
         dataIndex="title"
