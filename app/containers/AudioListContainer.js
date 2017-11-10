@@ -17,6 +17,7 @@ const formatSec = sec => `${Math.floor(sec / 60)}:${sec % 60}`;
 export const AudioList = props => {
   const {
     audios,
+    currentPlaying,
     onAudioClick,
     addAudioToFavorite,
     removeAudioFromFavorite,
@@ -32,6 +33,7 @@ export const AudioList = props => {
       pagination={false}
       dataSource={audios}
       onRowDoubleClick={onAudioClick}
+      rowClassName={row => (row.id === currentPlaying.id ? 'row-active' : '')}
       rowKey={row => row.id}
     >
       <Column
@@ -100,6 +102,7 @@ export const AudioListWithDefault = R.compose(
   lifecycleStream,
   connect(
     (state, ownProps) => ({
+      currentPlaying: ownProps.currentPlaying || state.audioChunk.currentPlaying,
       groupList: ownProps.groupList || groupListSelector(state),
       groupListForDropdown: ownProps.groupListForDropdown || groupListForDropdownSelector(state),
     }),

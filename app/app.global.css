@@ -36,3 +36,7 @@ a:hover {
 .anticon {
   cursor: pointer;
 }
+
+.row-active {
+  background: yellow;
+}
