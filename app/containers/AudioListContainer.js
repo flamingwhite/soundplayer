@@ -40,7 +40,7 @@ export const AudioList = props => {
       rowKey={row => row.id}
     >
       <Column
-        width={22}
+        width={15}
         render={(text, record, index) => (
           <span>
             {ifElseValue(
@@ -82,7 +82,6 @@ export const AudioList = props => {
       />
       <Column title="Artist" dataIndex="artist" width={200} />
       <Column
-        title="Action"
         render={(text, record) => (
           <span>
             <Popover
@@ -105,15 +104,27 @@ export const AudioList = props => {
                 </div>
               }
             >
-              <Icon type="folder" />
+              <i className="material-icons">playlist_add</i>
             </Popover>
-            <Icon
-              type="folder"
-              onClick={() => openInFolderClick(record)}
-              style={{ marginRight: 10 }}
-            />
-            <Icon type="delete" onClick={() => removeAudio(record)} />
           </span>
+        )}
+      />
+      <Column
+        render={(text, record) => (
+          <i
+            className="material-icons"
+            onClick={() => openInFolderClick(record)}
+            style={{ marginRight: 10 }}
+          >
+            folder
+          </i>
+        )}
+      />
+      <Column
+        render={(text, record) => (
+          <i className="material-icons" onClick={() => removeAudio(record)}>
+            delete
+          </i>
         )}
       />
     </Table>
