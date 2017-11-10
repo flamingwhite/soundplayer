@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Slider, Icon } from 'antd';
+import { Button, Slider } from 'antd';
 import { connect } from 'react-redux';
 import Rx from 'rxjs/Rx';
 import * as R from 'ramda';
@@ -9,6 +9,7 @@ import { PAUSE_MEDIA, RESUME_PLAY_MEDIA } from '../global/eventConstants';
 import { eventOfType$ } from '../global/eventStream';
 import lifecycleStream from '../hoc/lifecycleStream';
 import { secondsToTimeStr } from '../utils/timeUtil';
+import Icon from '../components/MIcon';
 
 class PlayerController extends React.Component {
   state = {
@@ -70,24 +71,14 @@ class PlayerController extends React.Component {
                 height: 60,
               }}
             >
-              <Icon
-                type="step-backward"
-                onClick={playPreviousAudio}
-                className={styles.playIconSmall}
-                style={{ marginLeft: 30 }}
-              />
+              <Icon type="skip_previous" onClick={playPreviousAudio} style={{ marginLeft: 30 }} />
               {playing && (
                 <Icon type="pause" onClick={pauseClick} className={styles.playIconLarge} />
               )}
               {!playing && (
-                <Icon type="caret-right" onClick={playClick} className={styles.playIconLarge} />
+                <Icon type="play_arrow" onClick={playClick} className={styles.playIconLarge} />
               )}
-              <Icon
-                type="step-forward"
-                onClick={playNextAudio}
-                style={{ marginRight: 30 }}
-                className={styles.playIconSmall}
-              />
+              <Icon type="skip_next" onClick={playNextAudio} style={{ marginRight: 30 }} />
             </div>
             <div style={{ alignItems: 'center', display: 'flex' }}>
               <Slider
@@ -104,7 +95,7 @@ class PlayerController extends React.Component {
               <span style={{ marginLeft: 10, marginRight: 20 }}>{`${secondsToTimeStr(
                 currentTime,
               )}/${secondsToTimeStr(duration)}`}</span>
-              <Icon type="sound" style={{ fontSize: 15 }} />
+              <Icon type="volume_up" style={{ fontSize: 15 }} />
               <Slider
                 min={0}
                 max={1}
