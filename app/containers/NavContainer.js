@@ -54,15 +54,6 @@ class NavContainer extends React.Component {
         </Link>
 
         <GroupContainer />
-
-        <Button style={{ marginTop: 20, display: 'block' }}>{this.props.count}</Button>
-        <Button onClick={v => this.props.inc(3, 4)}>inc</Button>
-        <Button onClick={v => this.props.dec()}>dec</Button>
-        <Button onClick={() => this.props.changeState(state => ({ count: 30 }))}>
-          Change to 30
-        </Button>
-        <Button onClick={() => publishEvent(PAUSE_MEDIA)}>Pause_Media</Button>
-        <Button onClick={() => publishEvent(RESUME_PLAY_MEDIA)}>RESUME_PLAY</Button>
       </div>
     );
   }

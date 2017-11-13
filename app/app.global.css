@@ -47,3 +47,13 @@ a:hover {
 .row-active {
   background: yellow;
 }
+
+.group-menu-item {
+  padding: 6px;
+  text-decoration: none;
+  vertical-align: bottom;
+}
+
+.group-menu-item i {
+  display: inline-block;
+}
