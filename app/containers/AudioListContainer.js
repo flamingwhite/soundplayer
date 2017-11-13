@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { Component } from 'react';
 import * as R from 'ramda';
 import { connect } from 'react-redux';
-import { Button, Table, Icon, Divider, Popover, Checkbox } from 'antd';
+import { Button, Input, Table, Popover, Checkbox } from 'antd';
+import { withStateHandlers } from 'recompose';
 import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
 import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
@@ -9,8 +10,10 @@ import { getMd5 } from '../utils/idUtil';
 import lifecycleStream from '../hoc/lifecycleStream';
 import { groupListSelector, groupListForDropdownSelector } from '../selectors/groupSelector';
 import { visibleAudios } from '../selectors/audioSelectors';
+import SearchHighlight from '../components/SearchHighlight';
+import { propContains } from '../utils/littleFn';
 
-const { Column, ColumnGroup } = Table;
+const { Column } = Table;
 
 const formatSec = sec => `${Math.floor(sec / 60)}:${sec % 60}`;
 
@@ -26,15 +29,18 @@ export const AudioList = props => {
     addAudioToGroup,
     removeAudioFromGroup,
     groupListForDropdown,
+    search = '',
   } = props;
   const isCurrentPlaying = audio => R.eqProps('id', audio, currentPlaying);
   const ifElseValue = (pre, trueValue, falseValue) => (pre ? trueValue : falseValue);
+
+  const displayAudios = R.filter(propContains(search, ['title', 'name']), audios);
 
   return (
     <Table
       size="small"
       pagination={false}
-      dataSource={audios}
+      dataSource={displayAudios}
       onRowDoubleClick={onAudioClick}
       rowClassName={row => ifElseValue(isCurrentPlaying(row), 'row-active', '')}
       rowKey={row => row.id}
@@ -78,9 +84,16 @@ export const AudioList = props => {
         title="Title"
         dataIndex="title"
         width="50%"
-        render={(text, record) => record.title || record.name}
+        render={(text, record) => (
+          <SearchHighlight search={search} value={record.title || record.name} />
+        )}
       />
-      <Column title="Artist" dataIndex="artist" width={200} />
+      <Column
+        title="Artist"
+        dataIndex="artist"
+        width={200}
+        render={(text, record) => <SearchHighlight search={search} value={record.artist} />}
+      />
       <Column
         render={(text, record) => (
           <span>
@@ -131,6 +144,21 @@ export const AudioList = props => {
   );
 };
 
+const AudioListWithSearch = withStateHandlers(
+  { search: '' },
+  {
+    changeSearch: () => value => ({ search: value }),
+  },
+)(props => {
+  const { changeSearch, search, ...rest } = props;
+  return (
+    <div>
+      <Input value={search} onChange={e => changeSearch(e.target.value)} />
+      <AudioList {...rest} search={search} />
+    </div>
+  );
+});
+
 export const AudioListWithDefault = R.compose(
   lifecycleStream,
   connect(
@@ -157,7 +185,7 @@ export const AudioListWithDefault = R.compose(
         ((audioId, groupId) => dispatch(actions.removeAudioFromGroup({ audioId, groupId }))),
     }),
   ),
-)(AudioList);
+)(AudioListWithSearch);
 
 class AudioListContainer extends React.Component {
   addAudios = () => {
