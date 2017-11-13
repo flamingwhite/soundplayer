@@ -7,17 +7,19 @@ const SearchHighlight = props => {
     return <span>{value}</span>;
   }
 
-  const buildStr = (search, value, result = []) => {
-    if (!search || !value.toLowerCase().includes(search.toLowerCase())) {
-      return result.concat(value);
+  const buildStr = (searchStr, valueStr, result = []) => {
+    if (!searchStr || !valueStr.toLowerCase().includes(searchStr.toLowerCase())) {
+      return result.concat(valueStr);
     }
-    const index = value.toLowerCase().indexOf(search.toLowerCase());
+    const index = valueStr.toLowerCase().indexOf(searchStr.toLowerCase());
     return buildStr(
-      search,
-      value.slice(index + search.length),
+      searchStr,
+      valueStr.slice(index + searchStr.length),
       result.concat([
-        value.slice(0, index),
-        <span style={{ backgroundColor: bg }}>{value.slice(index, index + search.length)}</span>,
+        valueStr.slice(0, index),
+        <span style={{ backgroundColor: bg }}>
+          {valueStr.slice(index, index + searchStr.length)}
+        </span>,
       ]),
     );
   };

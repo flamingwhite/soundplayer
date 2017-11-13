@@ -1,11 +1,34 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Input, Button, Icon } from 'antd';
 import { withStateHandlers, pure } from 'recompose';
 import * as R from 'ramda';
+import MIcon from '../components/MIcon';
 import { actions } from '../reducers/groupActionReducer';
 import { groupListSelector } from '../selectors/groupSelector';
+
+const GroupItem = props => {
+  const { group, onGroupClick, onRemoveClick, icon = 'heart-o' } = props;
+
+  return (
+    <li key={group.id} className="ant-menu-item">
+      <Link to={`/${group.id}`} onClick={() => onGroupClick(group.id)}>
+        <div>
+          <Icon type={icon} />
+          <span>{group.name}</span>
+          <Icon
+            type="close"
+            onClick={e => {
+              e.stopPropagation();
+              onRemoveClick(group.id);
+            }}
+          />
+        </div>
+      </Link>
+    </li>
+  );
+};
 
 const GroupContainer = props => {
   const {
@@ -20,22 +43,11 @@ const GroupContainer = props => {
     <div>
       <Input value={groupNameInput} onChange={e => changeInput(e.target.value)} />
       <Button onClick={() => createNewGroup(groupNameInput)}>Create</Button>
-      {groupList.map(group => (
-        <div key={group.id}>
-          <Link to={`/${group.id}`} onClick={() => setActiveGroup(group.id)}>
-            <div>
-              <Button>{group.name}</Button>
-              <Icon
-                type="close"
-                onClick={e => {
-                  e.stopPropagation();
-                  removeGroup(group.id);
-                }}
-              />
-            </div>
-          </Link>
-        </div>
-      ))}
+      <ul className="ant-menu ant-menu-vertical">
+        {groupList.map(group => (
+          <GroupItem group={group} onGroupClick={setActiveGroup} onRemoveClick={removeGroup} />
+        ))}
+      </ul>
     </div>
   );
 };

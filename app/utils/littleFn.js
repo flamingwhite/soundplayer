@@ -18,7 +18,7 @@ export const valueContains = (str, ob, ignoreCase = true) => {
 export const propContains = R.curry((str, props, ob) => valueContains(str, R.pick(props, ob)));
 
 export const toggleArrayItem = (arr = [], item, predicate = R.equals) => {
-  if (item == undefined) return arr;
+  if (item === undefined) return arr;
   return arr.find(predicate(item)) ? arr.filter(it => !predicate(item, it)) : [...arr, item];
 };
 

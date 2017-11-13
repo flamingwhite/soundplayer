@@ -53,7 +53,6 @@ class PlayerController extends React.Component {
       playNextAudio,
       playPreviousAudio,
       setPlayMode,
-      playModeId,
     } = this.props;
     const { currentTime, duration, playing } = this.state;
     const { playClick, pauseClick } = this;
@@ -61,7 +60,7 @@ class PlayerController extends React.Component {
       <div>
         {!currentPlaying && <div>No Source</div>}
         {currentPlaying && (
-          <div style={{ display: 'flex', background: 'lightgray' }}>
+          <div style={{ display: 'flex' }}>
             <div
               style={{
                 width: 200,

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import * as R from 'ramda';
 import { connect } from 'react-redux';
 import { Button, Input, Table, Popover, Checkbox } from 'antd';
@@ -15,7 +15,8 @@ import { propContains } from '../utils/littleFn';
 
 const { Column } = Table;
 
-const formatSec = sec => `${Math.floor(sec / 60)}:${sec % 60}`;
+// const formatSec = sec => `${Math.floor(sec / 60)}:${sec % 60}`;
+const ifElseValue = (pre, trueValue, falseValue) => (pre ? trueValue : falseValue);
 
 export const AudioList = props => {
   const {
@@ -31,8 +32,8 @@ export const AudioList = props => {
     groupListForDropdown,
     search = '',
   } = props;
-  const isCurrentPlaying = audio => R.eqProps('id', audio, currentPlaying);
-  const ifElseValue = (pre, trueValue, falseValue) => (pre ? trueValue : falseValue);
+  const isCurrentPlaying = audio =>
+    currentPlaying ? R.eqProps('id', audio, currentPlaying) : false;
 
   const displayAudios = R.filter(propContains(search, ['title', 'name']), audios);
 
@@ -46,7 +47,6 @@ export const AudioList = props => {
       rowKey={row => row.id}
     >
       <Column
-        width={15}
         render={(text, record, index) => (
           <span>
             {ifElseValue(

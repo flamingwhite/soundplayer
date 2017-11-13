@@ -38,7 +38,7 @@ class NavContainer extends React.Component {
     console.log(this.props, 'from navcontainer');
     return (
       <div>
-        <Menu onClick={this.menuClick} defaultSelectedKeys={[activeGroup.id]} theme="dark">
+        <Menu onClick={this.menuClick} defaultSelectedKeys={[activeGroup.id]}>
           <Menu.Item key="all">
             <Icon type="pie-chart" />
             <span>All Music</span>

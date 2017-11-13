@@ -1,6 +1,6 @@
 import React from 'react';
 import { Switch, Route } from 'react-router';
-import { Button, Layout, Spin } from 'antd';
+import { Layout } from 'antd';
 import NavContainer from '../containers/NavContainer';
 import YoutubeContainer from '../containers/YoutubeContainer';
 import PlayerController from '../containers/PlayerController';
@@ -14,7 +14,7 @@ export default () => (
         <h5>SilverX</h5>
       </Header>
       <Layout>
-        <Sider>
+        <Sider style={{ background: 'white' }}>
           <NavContainer />
         </Sider>
         <Content style={{ background: 'white' }}>
@@ -24,7 +24,7 @@ export default () => (
           </Switch>
         </Content>
       </Layout>
-      <Content style={{ height: 100 }}>
+      <Content style={{ height: 100, background: 'white', borderTop: '1px solid lightgray' }}>
         <PlayerController />
       </Content>
     </Layout>
