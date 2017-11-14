@@ -47,6 +47,7 @@ export const AudioList = props => {
       rowKey={row => row.id}
     >
       <Column
+        width={30}
         render={(text, record, index) => (
           <span>
             {ifElseValue(
@@ -91,7 +92,7 @@ export const AudioList = props => {
       <Column
         title="Artist"
         dataIndex="artist"
-        width={200}
+        width={170}
         render={(text, record) => <SearchHighlight search={search} value={record.artist} />}
       />
       <Column
@@ -202,12 +203,13 @@ class AudioListContainer extends React.Component {
   };
 
   render() {
-    const { audios, removeAllAudio } = this.props;
+    const { audios, removeAllAudio, resetAudioState } = this.props;
     return (
       <div>
         <AudioListWithDefault audios={audios} />
         <Button onClick={this.addAudios}>Add Audio</Button>
         <Button onClick={removeAllAudio}>Remove ALL</Button>
+        <Button onClick={resetAudioState}>Reset Audio State</Button>
       </div>
     );
   }
@@ -220,5 +222,6 @@ export default connect(
   dispatch => ({
     removeAllAudio: () => dispatch(actions.removeAllAudio()),
     addMultipleAudios: audios => dispatch(actions.addMultipleAudios(audios)),
+    resetAudioState: () => dispatch(actions.resetAudioState()),
   }),
 )(AudioListContainer);

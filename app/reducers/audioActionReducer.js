@@ -5,6 +5,7 @@ import { actionCreator } from './actionHelper';
 import { getNextAudioToPlay, nextAudioToPlay } from '../selectors/audioSelectors';
 import { getMd5 } from '../utils/idUtil';
 import { getNameByPath } from '../utils/audioUtil';
+import { networkInterfaces } from 'os';
 
 const initialState = {
   audios: [],
@@ -19,17 +20,21 @@ export const playModes = [
   {
     id: 'seq',
     label: 'Sequence',
+    icon: 'repeat',
   },
   {
     id: 'repeat',
     label: 'Repeat',
+    icon: 'repeat_one',
   },
   {
     id: 'random',
     label: 'random',
+    icon: 'shuffle',
   },
 ];
 
+export const RESET_AUDIO_STATE = 'RESET_AUDIO_STATE';
 export const SET_VOLUME = 'SET_VOLUME';
 export const ADD_AUDIO = 'ADD_AUDIO';
 export const ADD_AUDIO_BY_PATH = 'ADD_AUDIO_BY_PATH';
@@ -43,6 +48,7 @@ export const REMOVE_AUDIO = 'REMOVE_AUDIO';
 export const REMOVE_ALL_AUDIO = 'REMOVE_ALL_AUDIO';
 export const SET_CURRENT_PLAYING = 'SET_CURRENT_PLAYING';
 export const SET_PLAY_MODE = 'SET_PLAY_MODE';
+export const NEXT_PLAY_MODE = 'NEXT_PLAY_MODE';
 export const PLAYBACK_END = 'PLAYBACK_END';
 export const PLAY_NEXT_AUDIO = 'PLAY_NEXT_AUDIO';
 export const PLAY_PREVIOUS_AUDIO = 'PLAY_PREVIOUS_AUDIO';
@@ -53,6 +59,7 @@ export const POP_HISTORY = 'POP_HISTORY';
 export const MEDIA_DOWNLOADED = 'MEDIA_DOWNLOADED';
 
 export const actions = {
+  resetAudioState: () => actionCreator(RESET_AUDIO_STATE, null),
   setVolume: actionCreator(SET_VOLUME),
   addAudio: actionCreator(ADD_AUDIO),
   addAudioByPath: actionCreator(ADD_AUDIO_BY_PATH),
@@ -66,6 +73,7 @@ export const actions = {
   removeAllAudio: () => actionCreator(REMOVE_ALL_AUDIO, null),
   setCurrentPlaying: actionCreator(SET_CURRENT_PLAYING),
   setPlayMode: actionCreator(SET_PLAY_MODE),
+  nextPlayMode: () => actionCreator(NEXT_PLAY_MODE, null),
   playbackEnd: () => actionCreator(PLAYBACK_END, null),
   playNextAudio: () => actionCreator(PLAY_NEXT_AUDIO, null),
   playPreviousAudio: () => actionCreator(PLAY_PREVIOUS_AUDIO, null),
@@ -78,6 +86,7 @@ export const actions = {
 };
 
 const actionHandler = {
+  [RESET_AUDIO_STATE]: state => R.assoc('audios', state.audios, initialState),
   [SET_VOLUME]: (state, { payload }) => R.assoc('volume', payload, state),
   [ADD_AUDIO]: (state, { payload }) =>
     R.evolve({
@@ -234,6 +243,17 @@ const downloadOnlineMediaEpic = action$ =>
       actions.addAudioToGroup({ audioId: audio.id, groupId: 'onlineDownload' }),
     ]);
 
+const nextPlayModeEpic = (action$, store) =>
+  action$
+    .ofType(NEXT_PLAY_MODE)
+    .map(() => store.getState().audioChunk.playModeId)
+    .map(currentModeId => {
+      const idx = R.findIndex(R.propEq('id', currentModeId), playModes);
+      const nextIdx = idx === playModes.length - 1 ? 0 : idx + 1;
+      return playModes[nextIdx].id;
+    })
+    .map(actions.setPlayMode);
+
 export const audioEpics = combineEpics(
   addAduioByPathEpic,
   fetchAudioInfoEpic,
@@ -242,6 +262,7 @@ export const audioEpics = combineEpics(
   addPlayingHistory,
   nextAudioEpic,
   downloadOnlineMediaEpic,
+  nextPlayModeEpic,
 );
 
 export default audioReducer;

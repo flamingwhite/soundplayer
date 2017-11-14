@@ -11,6 +11,8 @@ import lifecycleStream from '../hoc/lifecycleStream';
 import { secondsToTimeStr } from '../utils/timeUtil';
 import Icon from '../components/MIcon';
 
+console.log('actions', actions);
+
 class PlayerController extends React.Component {
   state = {
     currentTime: 0,
@@ -53,9 +55,12 @@ class PlayerController extends React.Component {
       playNextAudio,
       playPreviousAudio,
       setPlayMode,
+      playModeId,
+      nextPlayMode,
     } = this.props;
     const { currentTime, duration, playing } = this.state;
     const { playClick, pauseClick } = this;
+    const activePlayMode = playModes.find(R.propEq('id', playModeId));
     return (
       <div>
         {!currentPlaying && <div>No Source</div>}
@@ -94,6 +99,9 @@ class PlayerController extends React.Component {
               <span style={{ marginLeft: 10, marginRight: 20 }}>{`${secondsToTimeStr(
                 currentTime,
               )}/${secondsToTimeStr(duration)}`}</span>
+
+              <Icon type={activePlayMode.icon} style={{ fontSize: 15 }} onClick={nextPlayMode} />
+
               <Icon type="volume_up" style={{ fontSize: 15 }} />
               <Slider
                 min={0}
@@ -111,12 +119,6 @@ class PlayerController extends React.Component {
             </div>
           </div>
         )}
-
-        {playModes.map(mode => (
-          <Button key={mode.id} onClick={() => setPlayMode(mode.id)}>
-            {mode.label}
-          </Button>
-        ))}
 
         {currentPlaying && (
           <span>
@@ -160,6 +162,7 @@ export default R.compose(
       playPreviousAudio: () => dispatch(actions.playPreviousAudio()),
       setVolume: volume => dispatch(actions.setVolume(volume)),
       setPlayMode: playModeId => dispatch(actions.setPlayMode(playModeId)),
+      nextPlayMode: () => dispatch(actions.nextPlayMode()),
     }),
   ),
 )(PlayerController);
