@@ -9,11 +9,17 @@ import AudioListContainer from '../containers/AudioListContainer';
 const { Header, Sider, Content } = Layout;
 export default () => (
   <div>
-    <Layout style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+    <Layout
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+      }}
+    >
       <Header style={{ height: 40, background: 'white' }}>
         <h5>SilverX</h5>
       </Header>
-      <Layout>
+      <Layout style={{ flex: 1 }}>
         <Sider style={{ background: 'white' }}>
           <NavContainer />
         </Sider>
@@ -24,9 +30,9 @@ export default () => (
           </Switch>
         </Content>
       </Layout>
-      <Content style={{ height: 100, background: 'white', borderTop: '1px solid lightgray' }}>
+      <div style={{ height: 100, background: 'white', borderTop: '1px solid lightgray' }}>
         <PlayerController />
-      </Content>
+      </div>
     </Layout>
   </div>
 );
