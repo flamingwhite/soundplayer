@@ -11,15 +11,6 @@ import lifecycleStream from '../hoc/lifecycleStream';
 import { publishEvent } from '../global/eventStream';
 import { PAUSE_MEDIA, RESUME_PLAY_MEDIA } from '../global/eventConstants';
 
-export const GroupItem = ({ item }) => {
-  const { title } = item;
-  return <li>{title}</li>;
-};
-
-export const GroupList = ({ list }) => (
-  <ul>{list.map(item => <li key={item.id}>{item.name}</li>)}</ul>
-);
-
 class NavContainer extends React.Component {
   componentDidMount() {
     this.props.didMount$.subscribe(() => console.log('didmount subscribe'));
@@ -38,17 +29,6 @@ class NavContainer extends React.Component {
     console.log(this.props, 'from navcontainer');
     return (
       <div>
-        <Menu onClick={this.menuClick} defaultSelectedKeys={[activeGroup.id]}>
-          <Menu.Item key="all">
-            <Icon type="pie-chart" />
-            <span>All Music</span>
-          </Menu.Item>
-          <Menu.Item key="favorite">
-            <Icon type="heart" />
-            <span>Favorites</span>
-          </Menu.Item>
-        </Menu>
-        <GroupList list={groups} />
         <Link to="/youtube" onClick={() => setActiveGroup('onlineDownload')}>
           <Button>WebDownload</Button>
         </Link>
