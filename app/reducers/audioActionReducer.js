@@ -2,10 +2,9 @@ import * as R from 'ramda';
 import { combineEpics } from 'redux-observable';
 import { getAudioTags } from '../utils/audioUtil';
 import { actionCreator } from './actionHelper';
-import { getNextAudioToPlay, nextAudioToPlay } from '../selectors/audioSelectors';
+import { nextAudioToPlay } from '../selectors/audioSelectors';
 import { getMd5 } from '../utils/idUtil';
 import { getNameByPath } from '../utils/audioUtil';
-import { networkInterfaces } from 'os';
 
 const initialState = {
   audios: [],

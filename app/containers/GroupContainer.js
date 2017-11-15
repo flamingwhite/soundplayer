@@ -9,14 +9,14 @@ import { actions } from '../reducers/groupActionReducer';
 import { groupListSelector } from '../selectors/groupSelector';
 
 const GroupItem = props => {
-  const { group, onGroupClick, onRemoveClick, icon = 'playlist_play' } = props;
+  const { group, onGroupClick, onRemoveClick, icon = 'queue_music' } = props;
 
   return (
     <li key={group.id} className="group-menu-item">
       <Link to={`/${group.id}`} onClick={() => onGroupClick(group.id)}>
-        <div>
-          <Icon type={icon} />
-          <span>{group.name}</span>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Icon type={group.icon || 'queue_music'} />
+          <span style={{ marginLeft: 7 }}>{group.name}</span>
           {/*
           <Icon
             type="close"
@@ -43,6 +43,9 @@ const GroupContainer = props => {
   } = props;
   return (
     <div>
+      <div>
+        <span>Create Playlist</span>
+      </div>
       <Input value={groupNameInput} onChange={e => changeInput(e.target.value)} />
       <Button onClick={() => createNewGroup(groupNameInput)}>Create</Button>
       <ul className="group-menu">

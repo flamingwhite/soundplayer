@@ -26,25 +26,35 @@ class NavContainer extends React.Component {
   };
 
   render() {
-    const { groups = [], newGroup, activeGroup, setActiveGroup } = this.props;
+    const {
+      groups = [],
+      currentPlaying,
+      newGroup,
+      activeGroup,
+      setActiveGroup,
+      resetGroupState,
+    } = this.props;
     console.log(this.props, 'from navcontainer');
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ flex: 1 }}>
+          <Button onClick={resetGroupState}>Reset_Group</Button>
           <Link to="/youtube" onClick={() => setActiveGroup('onlineDownload')}>
             <Button>WebDownload</Button>
           </Link>
           <GroupContainer />
         </div>
-        <div
-          style={{
-            borderTop: '1px solid lightgray',
-            marginBottom: 10,
-            paddingTop: 10,
-          }}
-        >
-          <CurrentPlayingCard />
-        </div>
+        {currentPlaying && (
+          <div
+            style={{
+              borderTop: '1px solid lightgray',
+              marginBottom: 10,
+              paddingTop: 10,
+            }}
+          >
+            <CurrentPlayingCard />
+          </div>
+        )}
       </div>
     );
   }
@@ -81,10 +91,12 @@ export default R.compose(
     state => ({
       groups: state.groupChunk.groups,
       activeGroup: state.groupChunk.activeGroup,
+      currentPlaying: state.audioChunk.currentPlaying,
     }),
     dispatch => ({
       newGroup: name => dispatch(actions.addGroup(name)),
       setActiveGroup: group => dispatch(actions.setActiveGroup(group)),
+      resetGroupState: () => dispatch(actions.resetGroupState()),
     }),
   ),
 )(NavContainer);
