@@ -6,7 +6,6 @@ import * as R from 'ramda';
 import { compose, branch } from 'recompose';
 import { actions } from '../reducers/groupActionReducer';
 import GroupContainer from './GroupContainer';
-import CurrentPlayingCard from './CurrentPlayingCard';
 import { withState } from '../utils/withState';
 import lifecycleStream from '../hoc/lifecycleStream';
 import { publishEvent } from '../global/eventStream';
@@ -36,9 +35,6 @@ class NavContainer extends React.Component {
 
         <div style={{ flex: 1 }}>
           <GroupContainer />
-        </div>
-        <div style={{ height: 100 }}>
-          <CurrentPlayingCard />
         </div>
       </div>
     );

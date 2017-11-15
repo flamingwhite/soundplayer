@@ -217,7 +217,6 @@ const addPlayingHistory = action$ =>
 const nextAudioEpic = (action$, store) =>
   action$
     .filter(action => [PLAYBACK_END, PLAY_NEXT_AUDIO].includes(action.type))
-    // .filter(() => store.getState().audioChunk.historyIndex === 0)
     .pluck('payload')
     .map(() => {
       const { audioChunk, groupChunk } = store.getState();
