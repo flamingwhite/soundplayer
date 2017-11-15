@@ -3,6 +3,7 @@ import * as R from 'ramda';
 import { connect } from 'react-redux';
 import { Button, Input, Table, Popover, Checkbox } from 'antd';
 import { withStateHandlers } from 'recompose';
+import VisibilitySensor from 'react-visibility-sensor';
 import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
 import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
@@ -35,19 +36,17 @@ export const AudioList = props => {
   const isCurrentPlaying = audio =>
     currentPlaying ? R.eqProps('id', audio, currentPlaying) : false;
 
-  const displayAudios = R.filter(propContains(search, ['title', 'name']), audios);
-
   return (
     <Table
       size="small"
       pagination={false}
-      dataSource={displayAudios}
+      dataSource={audios}
       onRowDoubleClick={onAudioClick}
       rowClassName={row => ifElseValue(isCurrentPlaying(row), 'row-active', '')}
       rowKey={row => row.id}
     >
       <Column
-        width={30}
+        width={50}
         render={(text, record, index) => (
           <span>
             {ifElseValue(
@@ -145,20 +144,77 @@ export const AudioList = props => {
   );
 };
 
-const AudioListWithSearch = withStateHandlers(
-  { search: '' },
-  {
-    changeSearch: () => value => ({ search: value }),
-  },
-)(props => {
-  const { changeSearch, search, ...rest } = props;
-  return (
-    <div>
-      <Input value={search} onChange={e => changeSearch(e.target.value)} />
-      <AudioList {...rest} search={search} />
-    </div>
-  );
-});
+class AudioListLazy extends React.Component {
+  state = { search: '', loadedAll: false, visibleCount: 5, perPage: 6 };
+  changeSearch = value => this.setState({ search: value });
+
+  componentWillReceiveProps(nextProps) {
+    console.log(this.props.audios.length, nextProps.audios.length);
+    if (this.props.audios.length !== nextProps.audios.length) {
+      console.log('reset state, !!!!!!!!!');
+      this.setState({
+        loadedAll: false,
+        visibleCount: 5,
+      });
+    }
+  }
+
+  componentDidUpdate = (prevProps, prevState) => {
+    setTimeout(() => {
+      const { isVisible, loadedAll } = this.state;
+      if (!loadedAll && isVisible) {
+        this.loadMore();
+      }
+    }, 300);
+  };
+
+  onVisibleChange = isVisible => {
+    this.setState({
+      isVisible,
+    });
+    if (isVisible) {
+      console.log('can see it, load more');
+      this.loadMore();
+    } else {
+      console.log('cannot see nothing');
+    }
+  };
+
+  loadMore = () => {
+    const { perPage, visibleCount } = this.state;
+    const { audios } = this.props;
+    if (visibleCount >= audios.length) {
+      console.log('all loaded');
+      this.setState({
+        loadedAll: true,
+      });
+      return;
+    }
+    let newCount = visibleCount + perPage;
+    if (newCount > audios.length) {
+      newCount = audios.length;
+    }
+    this.setState({
+      visibleCount: newCount,
+    });
+  };
+
+  render() {
+    const { changeSearch } = this;
+    const { search, visibleCount } = this.state;
+    const { audios, ...rest } = this.props;
+    const filtered = R.filter(propContains(search, ['title', 'name']), audios);
+    const displayAudios = filtered.slice(0, visibleCount);
+    return (
+      <div>
+        <Input value={search} onChange={e => changeSearch(e.target.value)} />
+        <AudioList audios={displayAudios} {...rest} search={search} />
+        <VisibilitySensor onChange={this.onVisibleChange} />
+        <div style={{ marginBottom: 20 }} />
+      </div>
+    );
+  }
+}
 
 export const AudioListWithDefault = R.compose(
   lifecycleStream,
@@ -186,7 +242,7 @@ export const AudioListWithDefault = R.compose(
         ((audioId, groupId) => dispatch(actions.removeAudioFromGroup({ audioId, groupId }))),
     }),
   ),
-)(AudioListWithSearch);
+)(AudioListLazy);
 
 class AudioListContainer extends React.Component {
   addAudios = () => {

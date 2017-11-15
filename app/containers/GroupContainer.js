@@ -15,7 +15,7 @@ const GroupItem = props => {
     <li key={group.id} className="group-menu-item">
       <Link to={`/${group.id}`} onClick={() => onGroupClick(group.id)}>
         <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Icon type={group.icon || 'queue_music'} />
+          <Icon type={group.icon || 'queue_music'} style={{ color: '#666' }} />
           <span style={{ marginLeft: 7 }}>{group.name}</span>
           {/*
           <Icon
