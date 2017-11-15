@@ -11,13 +11,14 @@ import lifecycleStream from '../hoc/lifecycleStream';
 import { secondsToTimeStr } from '../utils/timeUtil';
 import Icon from '../components/MIcon';
 
-console.log('actions', actions);
+const ifElseValue = (pre, trueValue, falseValue) => (pre ? trueValue : falseValue);
 
 class PlayerController extends React.Component {
   state = {
     currentTime: 0,
     duration: 0,
     playing: true,
+    volumeBeforeMute: null,
   };
   componentDidMount() {
     const { willUnmount$ } = this.props;
@@ -54,13 +55,28 @@ class PlayerController extends React.Component {
       setVolume,
       playNextAudio,
       playPreviousAudio,
-      setPlayMode,
       playModeId,
       nextPlayMode,
     } = this.props;
-    const { currentTime, duration, playing } = this.state;
+    const { currentTime, duration, playing, volumeBeforeMute } = this.state;
     const { playClick, pauseClick } = this;
     const activePlayMode = playModes.find(R.propEq('id', playModeId));
+    const setVolumeAction = v => {
+      setVolume(v);
+      this.setState({ volume: v });
+      this.audioElm.volume = v;
+    };
+
+    const muteClick = () => {
+      setVolumeAction(0);
+      this.setState({ volumeBeforeMute: volume });
+    };
+    const unMuteClick = () => {
+      const before = volumeBeforeMute || 1;
+      setVolumeAction(before);
+      this.setState({ volumeBeforeMute: null });
+    };
+
     return (
       <div>
         {!currentPlaying && <div>No Source</div>}
@@ -75,14 +91,18 @@ class PlayerController extends React.Component {
                 height: 60,
               }}
             >
-              <Icon type="skip_previous" onClick={playPreviousAudio} style={{ marginLeft: 30 }} />
-              {playing && (
-                <Icon type="pause" onClick={pauseClick} className={styles.playIconLarge} />
-              )}
-              {!playing && (
-                <Icon type="play_arrow" onClick={playClick} className={styles.playIconLarge} />
-              )}
-              <Icon type="skip_next" onClick={playNextAudio} style={{ marginRight: 30 }} />
+              <Icon
+                type="skip_previous"
+                onClick={playPreviousAudio}
+                style={{ marginLeft: 30, fontSize: 30 }}
+              />
+              {playing && <Icon type="pause" onClick={pauseClick} style={{ fontSize: 45 }} />}
+              {!playing && <Icon type="play_arrow" onClick={playClick} style={{ fontSize: 45 }} />}
+              <Icon
+                type="skip_next"
+                onClick={playNextAudio}
+                style={{ marginRight: 30, fontSize: 30 }}
+              />
             </div>
             <div style={{ alignItems: 'center', display: 'flex' }}>
               <Slider
@@ -100,19 +120,23 @@ class PlayerController extends React.Component {
                 currentTime,
               )}/${secondsToTimeStr(duration)}`}</span>
 
-              <Icon type={activePlayMode.icon} style={{ fontSize: 15 }} onClick={nextPlayMode} />
+              <Icon
+                type={activePlayMode.icon}
+                style={{ fontSize: 25, marginRight: 15 }}
+                onClick={nextPlayMode}
+              />
 
-              <Icon type="volume_up" style={{ fontSize: 15 }} />
+              {ifElseValue(
+                volume > 0,
+                <Icon type="volume_up" onClick={muteClick} style={{ fontSize: 25 }} />,
+                <Icon type="volume_mute" onClick={unMuteClick} style={{ fontSize: 25 }} />,
+              )}
               <Slider
                 min={0}
                 max={1}
                 value={volume}
                 step={0.01}
-                onChange={v => {
-                  setVolume(v);
-                  this.audioElm.volume = v;
-                  console.log(this.audioElm.played);
-                }}
+                onChange={setVolumeAction}
                 tipFormatter={v => `${Math.floor(v * 100)}%`}
                 style={{ flex: 1, width: 80 }}
               />
@@ -161,7 +185,6 @@ export default R.compose(
       playNextAudio: () => dispatch(actions.playNextAudio()),
       playPreviousAudio: () => dispatch(actions.playPreviousAudio()),
       setVolume: volume => dispatch(actions.setVolume(volume)),
-      setPlayMode: playModeId => dispatch(actions.setPlayMode(playModeId)),
       nextPlayMode: () => dispatch(actions.nextPlayMode()),
     }),
   ),

@@ -87,7 +87,7 @@ export const actions = {
 
 const actionHandler = {
   [RESET_AUDIO_STATE]: state => R.assoc('audios', state.audios, initialState),
-  [SET_VOLUME]: (state, { payload }) => R.assoc('volume', payload, state),
+  [SET_VOLUME]: (state, { payload }) => R.assoc('volume', payload || 0, state),
   [ADD_AUDIO]: (state, { payload }) =>
     R.evolve({
       audios: R.unionWith(R.eqProps('id'), R.__, [payload]),
