@@ -7,7 +7,7 @@ import { actions, playModes } from '../reducers/audioActionReducer';
 import { PAUSE_MEDIA, RESUME_PLAY_MEDIA } from '../global/eventConstants';
 import { eventOfType$ } from '../global/eventStream';
 import lifecycleStream from '../hoc/lifecycleStream';
-import CurrentPlayingCard from './CurrentPlayingCard';
+// import CurrentPlayingCard from './CurrentPlayingCard';
 import { secondsToTimeStr } from '../utils/timeUtil';
 import Icon from '../components/MIcon';
 
@@ -81,16 +81,17 @@ class PlayerController extends React.Component {
       <div>
         {!currentPlaying && <div>No Source</div>}
         {currentPlaying && (
-          <div style={{ display: 'flex' }}>
-            <div
+          <div style={{ display: 'flex', height: 80, alignItems: 'center' }}>
+            {/* <div
               style={{
                 width: 200,
                 display: 'flex',
-                background: 'green',
+                alignItems: 'center',
               }}
             >
               <CurrentPlayingCard />
             </div>
+            */}
 
             <div
               style={{
@@ -135,7 +136,7 @@ class PlayerController extends React.Component {
                   // style={{ width: 500 }}
                 />
               </div>
-              <div style={{ width: 270, alignItems: 'center', display: 'flex' }}>
+              <div style={{ alignItems: 'center', display: 'flex' }}>
                 <span style={{ marginLeft: 10, marginRight: 20 }}>{`${secondsToTimeStr(
                   currentTime,
                 )}/${secondsToTimeStr(duration)}`}</span>
@@ -158,18 +159,13 @@ class PlayerController extends React.Component {
                   step={0.01}
                   onChange={setVolumeAction}
                   tipFormatter={v => `${Math.floor(v * 100)}%`}
-                  style={{ display: 'inline-block', width: 70 }}
+                  style={{ display: 'inline-block', width: 70, marginRight: 15 }}
                 />
               </div>
             </div>
           </div>
         )}
 
-        {currentPlaying && (
-          <span>
-            {currentPlaying.title} --- {currentPlaying.artist}{' '}
-          </span>
-        )}
         {currentPlaying && (
           <audio
             ref={elm => (this.audioElm = elm)}

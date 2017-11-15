@@ -20,7 +20,7 @@ export default () => (
         <h5>SilverX</h5>
       </Header>
       <Layout style={{ flex: 1 }}>
-        <Sider style={{ background: 'white' }}>
+        <Sider style={{ background: 'white', display: 'flex' }}>
           <NavContainer />
         </Sider>
         <Content style={{ background: 'white' }}>
@@ -30,7 +30,14 @@ export default () => (
           </Switch>
         </Content>
       </Layout>
-      <div style={{ height: 100, background: 'white', borderTop: '1px solid lightgray' }}>
+      <div
+        style={{
+          height: 80,
+          background: 'white',
+          borderTop: '1px solid lightgray',
+          alignItems: 'center',
+        }}
+      >
         <PlayerController />
       </div>
     </Layout>

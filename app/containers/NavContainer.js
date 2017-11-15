@@ -6,6 +6,7 @@ import * as R from 'ramda';
 import { compose, branch } from 'recompose';
 import { actions } from '../reducers/groupActionReducer';
 import GroupContainer from './GroupContainer';
+import CurrentPlayingCard from './CurrentPlayingCard';
 import { withState } from '../utils/withState';
 import lifecycleStream from '../hoc/lifecycleStream';
 import { publishEvent } from '../global/eventStream';
@@ -28,13 +29,21 @@ class NavContainer extends React.Component {
     const { groups = [], newGroup, activeGroup, setActiveGroup } = this.props;
     console.log(this.props, 'from navcontainer');
     return (
-      <div style={{ display: 'flex', flexDirection: 'column' }}>
-        <Link to="/youtube" onClick={() => setActiveGroup('onlineDownload')}>
-          <Button>WebDownload</Button>
-        </Link>
-
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ flex: 1 }}>
+          <Link to="/youtube" onClick={() => setActiveGroup('onlineDownload')}>
+            <Button>WebDownload</Button>
+          </Link>
           <GroupContainer />
+        </div>
+        <div
+          style={{
+            borderTop: '1px solid lightgray',
+            marginBottom: 10,
+            paddingTop: 10,
+          }}
+        >
+          <CurrentPlayingCard />
         </div>
       </div>
     );
