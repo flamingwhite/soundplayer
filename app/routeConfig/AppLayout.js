@@ -16,9 +16,7 @@ export default () => (
         height: '100vh',
       }}
     >
-      <Header style={{ height: 40, background: 'white' }}>
-        <h5>SilverX</h5>
-      </Header>
+      <Header style={{ height: 40, background: 'white' }} />
       <Layout style={{ flex: 1 }}>
         <Sider style={{ background: 'white', display: 'flex' }}>
           <NavContainer />

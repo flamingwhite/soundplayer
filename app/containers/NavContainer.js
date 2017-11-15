@@ -38,10 +38,7 @@ class NavContainer extends React.Component {
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ flex: 1 }}>
-          <Button onClick={resetGroupState}>Reset_Group</Button>
-          <Link to="/youtube" onClick={() => setActiveGroup('onlineDownload')}>
-            <Button>WebDownload</Button>
-          </Link>
+          {/* <a onClick={resetGroupState}>Reset_Group</a> */}
           <GroupContainer />
         </div>
         {currentPlaying && (
