@@ -204,11 +204,11 @@ class AudioListLazy extends React.Component {
     const { search, visibleCount } = this.state;
     const { audios, ...rest } = this.props;
     const filtered = R.filter(propContains(search, ['title', 'name']), audios);
-    const displayAudios = filtered.slice(0, visibleCount);
+    // const displayAudios = filtered.slice(0, visibleCount);
     return (
       <div>
         <Input value={search} onChange={e => changeSearch(e.target.value)} />
-        <AudioList audios={displayAudios} {...rest} search={search} />
+        <AudioList audios={filtered} {...rest} search={search} />
         <VisibilitySensor onChange={this.onVisibleChange} />
         <div style={{ marginBottom: 20 }} />
       </div>

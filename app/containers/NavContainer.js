@@ -37,6 +37,7 @@ class NavContainer extends React.Component {
     console.log(this.props, 'from navcontainer');
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <Link to="/youtube">Youtube</Link>
         <div style={{ flex: 1 }}>
           {/* <a onClick={resetGroupState}>Reset_Group</a> */}
           <GroupContainer />
