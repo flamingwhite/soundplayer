@@ -5,6 +5,9 @@
     "allowImportExportEverywhere": true
   },
   "extends": "airbnb",
+  "globals": {
+    "$": true
+  },
   "env": {
     "browser": true,
     "node": true
