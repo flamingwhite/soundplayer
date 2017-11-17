@@ -43,6 +43,16 @@ a:hover {
   flex: 1 1 auto;
 }
 
+.vbox {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+}
+
+.ant-layout-content {
+  background: white;
+}
+
 .material-icons {
   font-size: 18px;
   margin-left: 4px;

@@ -145,13 +145,13 @@ export const AudioList = props => {
 };
 
 class AudioListLazy extends React.Component {
-  state = { search: '', loadedAll: false, visibleCount: 30, perPage: 6 };
-  changeSearch = value => this.setState({ search: value });
+  state = { search: '', loadedAll: false, visibleCount: 30, perPage: 20 };
+  changeSearch = value => this.setState({ search: value, visibleCount: 30 });
 
   loadMore = pg => {
-    const { visibleCount } = this.state;
+    const { visibleCount, perPage } = this.state;
     console.log('loading more called ', visibleCount, pg);
-    this.setState({ visibleCount: visibleCount + 20 });
+    this.setState({ visibleCount: visibleCount + perPage });
     return 'done';
   };
 
@@ -224,11 +224,11 @@ class AudioListContainer extends React.Component {
         <Content className="box">
           <AudioListWithDefault audios={audios} />
         </Content>
-        <Footer>
+        <div>
           <Button onClick={this.addAudios}>Add Audio</Button>
           <Button onClick={removeAllAudio}>Remove ALL</Button>
           <Button onClick={resetAudioState}>Reset Audio State</Button>
-        </Footer>
+        </div>
       </Layout>
     );
   }
