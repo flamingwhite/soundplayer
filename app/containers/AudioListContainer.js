@@ -2,7 +2,6 @@ import React from 'react';
 import * as R from 'ramda';
 import { connect } from 'react-redux';
 import { Layout, Button, Input, Table, Popover, Checkbox } from 'antd';
-import InfiniteScroller from 'react-infinite-scroller';
 import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
 import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
@@ -15,7 +14,7 @@ import { propContains } from '../utils/littleFn';
 import Scroller from '../components/Scroller';
 
 const { Column } = Table;
-const { Content, Header, Footer } = Layout;
+const { Content, Footer } = Layout;
 
 // const formatSec = sec => `${Math.floor(sec / 60)}:${sec % 60}`;
 const ifElseValue = (pre, trueValue, falseValue) => (pre ? trueValue : falseValue);
@@ -165,7 +164,7 @@ class AudioListLazy extends React.Component {
     return (
       <Layout>
         <Input value={search} onChange={e => changeSearch(e.target.value)} />
-        <Content>
+        <Content className="box">
           <Scroller loadMore={this.loadMore}>
             <AudioList audios={displayAudios} {...rest} search={search} />
           </Scroller>
@@ -222,7 +221,7 @@ class AudioListContainer extends React.Component {
     const { audios, removeAllAudio, resetAudioState } = this.props;
     return (
       <Layout>
-        <Content>
+        <Content className="box">
           <AudioListWithDefault audios={audios} />
         </Content>
         <Footer>

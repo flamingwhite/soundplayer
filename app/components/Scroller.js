@@ -9,15 +9,16 @@ class Scroller extends Component {
       .fromEvent(this.elm, 'scroll')
       //   .throttleTime(150)
       .map(() => $(this.elm).scrollTop())
-      //   .pairwise()
-      //   .filter(x => x[1] > x[0])
-      //   .map(x => x[1])
-      .filter(() => $(this.btmElm).position().top <= $(this.elm).height() + 10);
+      .pairwise()
+      .filter(x => x[1] > x[0])
+      .map(x => x[1])
+      .filter(() => $(this.btmElm).position().top <= $(this.elm).height());
     //   .debounceTime(200);
 
     this.scrollTop$
       //   .exhaustMap(() => Promise.resolve(loadMore()))
       .subscribe(x => {
+        console.log($(this.btmElm).position().top, $(this.elm).height());
         loadMore();
         console.log('time to reload          ----------');
       });
@@ -32,18 +33,16 @@ class Scroller extends Component {
     return (
       <div
         ref={elm => (this.elm = elm)}
-        className="sky"
-        style={{ border: '1px solid red', height: '100%', overflow: 'auto', position: 'relative' }}
+        className="sky vbox"
+        style={{
+          border: '1px solid red',
+          overflow: 'scroll',
+          position: 'relative',
+          flex: 1,
+        }}
       >
-        <div
-          style={{ border: '1px solid green', marginTop: 3 }}
-          ref={topElm => (this.topElm = topElm)}
-        />
-        {children}
-        <div
-          style={{ border: '1px solid black', marginBottom: 3 }}
-          ref={btmElm => (this.btmElm = btmElm)}
-        />
+        <div className="box">{children}</div>
+        <div ref={btmElm => (this.btmElm = btmElm)} />
       </div>
     );
   }

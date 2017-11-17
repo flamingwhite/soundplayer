@@ -21,7 +21,7 @@ export default () => (
         <Sider style={{ background: 'white', display: 'flex' }}>
           <NavContainer />
         </Sider>
-        <Content style={{ background: 'white' }}>
+        <Content style={{ background: 'white' }} className="box">
           <Switch>
             <Route exact path="/youtube" component={YoutubeContainer} />
             <Route component={AudioListContainer} />
