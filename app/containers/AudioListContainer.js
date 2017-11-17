@@ -165,7 +165,7 @@ class AudioListLazy extends React.Component {
       <Layout>
         <Input value={search} onChange={e => changeSearch(e.target.value)} />
         <Content className="box">
-          <Scroller loadMore={this.loadMore}>
+          <Scroller loadMore={this.loadMore} hasMore={visibleCount < filtered.length}>
             <AudioList audios={displayAudios} {...rest} search={search} />
           </Scroller>
         </Content>

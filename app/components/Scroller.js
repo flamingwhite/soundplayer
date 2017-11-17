@@ -23,6 +23,7 @@ class Scroller extends Component {
     scrollDown$
       .merge(mousewheel$)
       .takeUntil(willUnmount$)
+      .filter(() => this.props.hasMore)
       .subscribe(() => {
         console.log($(this.btmElm).position().top, $(this.elm).height());
         loadMore();

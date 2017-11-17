@@ -81,18 +81,14 @@ class PlayerController extends React.Component {
       <div>
         {!currentPlaying && <div>No Source</div>}
         {currentPlaying && (
-          <div style={{ display: 'flex', height: 80, alignItems: 'center' }}>
-            {/* <div
-              style={{
-                width: 200,
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <CurrentPlayingCard />
-            </div>
-            */}
-
+          <div
+            style={{
+              height: 80,
+              alignItems: 'center',
+              display: 'grid',
+              gridTemplateColumns: '200px 1fr auto',
+            }}
+          >
             <div
               style={{
                 width: 200,
@@ -114,54 +110,44 @@ class PlayerController extends React.Component {
                 style={{ marginRight: 30, fontSize: 30 }}
               />
             </div>
-            <div
-              style={{
-                alignItems: 'center',
-                flex: 1,
-                display: 'flex',
-                justifyContent: 'space-around',
+
+            <Slider
+              min={0}
+              max={duration}
+              value={currentTime}
+              step={1}
+              onChange={v => {
+                console.log(this.audioElm.played);
+                this.audioElm.currentTime = v;
               }}
-            >
-              <div style={{ flex: 1 }}>
-                <Slider
-                  min={0}
-                  max={duration}
-                  value={currentTime}
-                  step={1}
-                  onChange={v => {
-                    console.log(this.audioElm.played);
-                    this.audioElm.currentTime = v;
-                  }}
-                  //   style={{ width: 200 }}
-                  // style={{ width: 500 }}
-                />
-              </div>
-              <div style={{ alignItems: 'center', display: 'flex' }}>
-                <span style={{ marginLeft: 10, marginRight: 20 }}>{`${secondsToTimeStr(
-                  currentTime,
-                )}/${secondsToTimeStr(duration)}`}</span>
+              //   style={{ width: 200 }}
+              // style={{ width: 500 }}
+            />
+            <div style={{ alignItems: 'center', display: 'flex' }}>
+              <span style={{ marginLeft: 10, marginRight: 20 }}>{`${secondsToTimeStr(
+                currentTime,
+              )}/${secondsToTimeStr(duration)}`}</span>
 
-                <Icon
-                  type={activePlayMode.icon}
-                  style={{ fontSize: 25, marginRight: 15 }}
-                  onClick={nextPlayMode}
-                />
+              <Icon
+                type={activePlayMode.icon}
+                style={{ fontSize: 25, marginRight: 15 }}
+                onClick={nextPlayMode}
+              />
 
-                {ifElseValue(
-                  volume > 0,
-                  <Icon type="volume_up" onClick={muteClick} style={{ fontSize: 25 }} />,
-                  <Icon type="volume_mute" onClick={unMuteClick} style={{ fontSize: 25 }} />,
-                )}
-                <Slider
-                  min={0}
-                  max={1}
-                  value={volume}
-                  step={0.01}
-                  onChange={setVolumeAction}
-                  tipFormatter={v => `${Math.floor(v * 100)}%`}
-                  style={{ display: 'inline-block', width: 70, marginRight: 15 }}
-                />
-              </div>
+              {ifElseValue(
+                volume > 0,
+                <Icon type="volume_up" onClick={muteClick} style={{ fontSize: 25 }} />,
+                <Icon type="volume_mute" onClick={unMuteClick} style={{ fontSize: 25 }} />,
+              )}
+              <Slider
+                min={0}
+                max={1}
+                value={volume}
+                step={0.01}
+                onChange={setVolumeAction}
+                tipFormatter={v => `${Math.floor(v * 100)}%`}
+                style={{ display: 'inline-block', width: 70, marginRight: 15 }}
+              />
             </div>
           </div>
         )}
