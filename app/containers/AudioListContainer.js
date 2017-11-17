@@ -1,9 +1,8 @@
 import React from 'react';
 import * as R from 'ramda';
 import { connect } from 'react-redux';
-import { Button, Input, Table, Popover, Checkbox } from 'antd';
-import { withStateHandlers } from 'recompose';
-import VisibilitySensor from 'react-visibility-sensor';
+import { Layout, Button, Input, Table, Popover, Checkbox } from 'antd';
+import InfiniteScroller from 'react-infinite-scroller';
 import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
 import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
@@ -13,8 +12,10 @@ import { groupListSelector, groupListForDropdownSelector } from '../selectors/gr
 import { visibleAudios } from '../selectors/audioSelectors';
 import SearchHighlight from '../components/SearchHighlight';
 import { propContains } from '../utils/littleFn';
+import Scroller from '../components/Scroller';
 
 const { Column } = Table;
+const { Content, Header, Footer } = Layout;
 
 // const formatSec = sec => `${Math.floor(sec / 60)}:${sec % 60}`;
 const ifElseValue = (pre, trueValue, falseValue) => (pre ? trueValue : falseValue);
@@ -145,58 +146,14 @@ export const AudioList = props => {
 };
 
 class AudioListLazy extends React.Component {
-  state = { search: '', loadedAll: false, visibleCount: 5, perPage: 6 };
+  state = { search: '', loadedAll: false, visibleCount: 30, perPage: 6 };
   changeSearch = value => this.setState({ search: value });
 
-  componentWillReceiveProps(nextProps) {
-    console.log(this.props.audios.length, nextProps.audios.length);
-    if (this.props.audios.length !== nextProps.audios.length) {
-      console.log('reset state, !!!!!!!!!');
-      this.setState({
-        loadedAll: false,
-        visibleCount: 5,
-      });
-    }
-  }
-
-  componentDidUpdate = (prevProps, prevState) => {
-    setTimeout(() => {
-      const { isVisible, loadedAll } = this.state;
-      if (!loadedAll && isVisible) {
-        this.loadMore();
-      }
-    }, 300);
-  };
-
-  onVisibleChange = isVisible => {
-    this.setState({
-      isVisible,
-    });
-    if (isVisible) {
-      console.log('can see it, load more');
-      this.loadMore();
-    } else {
-      console.log('cannot see nothing');
-    }
-  };
-
-  loadMore = () => {
-    const { perPage, visibleCount } = this.state;
-    const { audios } = this.props;
-    if (visibleCount >= audios.length) {
-      console.log('all loaded');
-      this.setState({
-        loadedAll: true,
-      });
-      return;
-    }
-    let newCount = visibleCount + perPage;
-    if (newCount > audios.length) {
-      newCount = audios.length;
-    }
-    this.setState({
-      visibleCount: newCount,
-    });
+  loadMore = pg => {
+    const { visibleCount } = this.state;
+    console.log('loading more called ', visibleCount, pg);
+    this.setState({ visibleCount: visibleCount + 20 });
+    return 'done';
   };
 
   render() {
@@ -204,14 +161,17 @@ class AudioListLazy extends React.Component {
     const { search, visibleCount } = this.state;
     const { audios, ...rest } = this.props;
     const filtered = R.filter(propContains(search, ['title', 'name']), audios);
-    // const displayAudios = filtered.slice(0, visibleCount);
+    const displayAudios = filtered.slice(0, visibleCount);
     return (
-      <div>
+      <Layout>
         <Input value={search} onChange={e => changeSearch(e.target.value)} />
-        <AudioList audios={filtered} {...rest} search={search} />
-        <VisibilitySensor onChange={this.onVisibleChange} />
+        <Content>
+          <Scroller loadMore={this.loadMore}>
+            <AudioList audios={displayAudios} {...rest} search={search} />
+          </Scroller>
+        </Content>
         <div style={{ marginBottom: 20 }} />
-      </div>
+      </Layout>
     );
   }
 }
@@ -261,12 +221,16 @@ class AudioListContainer extends React.Component {
   render() {
     const { audios, removeAllAudio, resetAudioState } = this.props;
     return (
-      <div>
-        <AudioListWithDefault audios={audios} />
-        <Button onClick={this.addAudios}>Add Audio</Button>
-        <Button onClick={removeAllAudio}>Remove ALL</Button>
-        <Button onClick={resetAudioState}>Reset Audio State</Button>
-      </div>
+      <Layout>
+        <Content>
+          <AudioListWithDefault audios={audios} />
+        </Content>
+        <Footer>
+          <Button onClick={this.addAudios}>Add Audio</Button>
+          <Button onClick={removeAllAudio}>Remove ALL</Button>
+          <Button onClick={resetAudioState}>Reset Audio State</Button>
+        </Footer>
+      </Layout>
     );
   }
 }
