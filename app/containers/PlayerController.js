@@ -91,24 +91,17 @@ class PlayerController extends React.Component {
           >
             <div
               style={{
-                width: 200,
-                display: 'flex',
-                justifyContent: 'space-around',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
                 alignItems: 'center',
+                marginLeft: 30,
+                marginRight: 30,
               }}
             >
-              <Icon
-                type="skip_previous"
-                onClick={playPreviousAudio}
-                style={{ marginLeft: 30, fontSize: 30 }}
-              />
+              <Icon type="skip_previous" onClick={playPreviousAudio} style={{ fontSize: 30 }} />
               {playing && <Icon type="pause" onClick={pauseClick} style={{ fontSize: 45 }} />}
               {!playing && <Icon type="play_arrow" onClick={playClick} style={{ fontSize: 45 }} />}
-              <Icon
-                type="skip_next"
-                onClick={playNextAudio}
-                style={{ marginRight: 30, fontSize: 30 }}
-              />
+              <Icon type="skip_next" onClick={playNextAudio} style={{ fontSize: 30 }} />
             </div>
 
             <Slider
@@ -120,19 +113,20 @@ class PlayerController extends React.Component {
                 console.log(this.audioElm.played);
                 this.audioElm.currentTime = v;
               }}
-              //   style={{ width: 200 }}
-              // style={{ width: 500 }}
             />
-            <div style={{ alignItems: 'center', display: 'flex' }}>
-              <span style={{ marginLeft: 10, marginRight: 20 }}>{`${secondsToTimeStr(
-                currentTime,
-              )}/${secondsToTimeStr(duration)}`}</span>
+            <div
+              style={{
+                alignItems: 'center',
+                display: 'grid',
+                gridTemplateColumns: 'auto auto auto auto',
+                gridColumnGap: 10,
+                marginLeft: 10,
+                marginRight: 15,
+              }}
+            >
+              <span>{`${secondsToTimeStr(currentTime)}/${secondsToTimeStr(duration)}`}</span>
 
-              <Icon
-                type={activePlayMode.icon}
-                style={{ fontSize: 25, marginRight: 15 }}
-                onClick={nextPlayMode}
-              />
+              <Icon type={activePlayMode.icon} style={{ fontSize: 25 }} onClick={nextPlayMode} />
 
               {ifElseValue(
                 volume > 0,
@@ -146,7 +140,7 @@ class PlayerController extends React.Component {
                 step={0.01}
                 onChange={setVolumeAction}
                 tipFormatter={v => `${Math.floor(v * 100)}%`}
-                style={{ display: 'inline-block', width: 70, marginRight: 15 }}
+                style={{ width: 70 }}
               />
             </div>
           </div>

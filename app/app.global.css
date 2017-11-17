@@ -58,6 +58,7 @@ a:hover {
   margin-left: 4px;
   margin-right: 4px;
   cursor: pointer;
+  text-align: center;
 }
 
 .anticon {
