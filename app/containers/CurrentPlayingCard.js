@@ -13,25 +13,27 @@ const CurrentPlayingCard = props => {
   const favorite = R.path(['groups', 'favorite'], currentPlaying);
 
   return (
-    <div style={{ display: 'flex' }}>
-      <Avatar shape="square" size="large" icon="user" style={{ marginLeft: 10 }} />
-      <span style={{ flex: 1, padding: '0 8px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gridGap: 10 }}>
+      <Avatar shape="square" size="large" icon="user" />
+      <span style={{ display: 'grid', gridTemplateRows: '1fr 1fr' }}>
         <div>{title}</div>
-        <div>{artist}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto' }}>
+          {artist}
+          {ifElseValue(
+            favorite,
+            <i
+              className="material-icons"
+              style={{ color: 'red' }}
+              onClick={() => removeAudioFromFavorite(id)}
+            >
+              favorite
+            </i>,
+            <i className="material-icons" onClick={() => addAudioToFavorite(id)}>
+              favorite_border
+            </i>,
+          )}
+        </div>
       </span>
-      {ifElseValue(
-        favorite,
-        <i
-          className="material-icons"
-          style={{ color: 'red' }}
-          onClick={() => removeAudioFromFavorite(id)}
-        >
-          favorite
-        </i>,
-        <i className="material-icons" onClick={() => addAudioToFavorite(id)}>
-          favorite_border
-        </i>,
-      )}
     </div>
   );
 };

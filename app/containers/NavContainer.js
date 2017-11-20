@@ -43,10 +43,13 @@ class NavContainer extends React.Component {
           gridRowGap: 10,
           padding: '5px 8px',
           height: '100%',
+          width: 200,
         }}
       >
         <Link to="/youtube">Youtube</Link>
-        <GroupContainer />
+        <div style={{ overflow: 'scroll' }}>
+          <GroupContainer />
+        </div>
         {currentPlaying && (
           <div
             style={{
