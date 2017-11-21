@@ -15,8 +15,18 @@ const CurrentPlayingCard = props => {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gridGap: 10 }}>
       <Avatar shape="square" size="large" icon="user" />
-      <span style={{ display: 'grid', gridTemplateRows: '1fr 1fr' }}>
-        <div>{title}</div>
+      <span style={{ display: 'grid', gridTemplateRows: 'auto auto' }}>
+        <div
+          style={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            fontSize: 16,
+            color: 'black',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {title}
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto' }}>
           {artist}
           {ifElseValue(

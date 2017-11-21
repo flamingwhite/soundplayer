@@ -5,6 +5,7 @@ import NavContainer from '../containers/NavContainer';
 import YoutubeContainer from '../containers/YoutubeContainer';
 import PlayerController from '../containers/PlayerController';
 import AudioListContainer from '../containers/AudioListContainer';
+import GroupDetailContainer from '../containers/GroupDetail';
 
 const { Header, Sider, Content } = Layout;
 export default () => (
@@ -21,7 +22,11 @@ export default () => (
         <Sider style={{ background: 'white', display: 'flex' }}>
           <NavContainer />
         </Sider>
-        <Content style={{ background: 'white' }} className="box">
+        <Content
+          style={{ background: 'white', display: 'grid', gridTemplateRows: 'auto 1fr' }}
+          className="box"
+        >
+          <GroupDetailContainer />
           <Switch>
             <Route exact path="/youtube" component={YoutubeContainer} />
             <Route component={AudioListContainer} />
