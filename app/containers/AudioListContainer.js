@@ -145,7 +145,7 @@ export const AudioList = props => {
 };
 
 class AudioListLazy extends React.Component {
-  state = { search: '', loadedAll: false, visibleCount: 30, perPage: 20 };
+  state = { search: '', loadedAll: false, visibleCount: 10, perPage: 10 };
   changeSearch = value => this.setState({ search: value, visibleCount: 30 });
 
   loadMore = pg => {
@@ -162,15 +162,12 @@ class AudioListLazy extends React.Component {
     const filtered = R.filter(propContains(search, ['title', 'name']), audios);
     const displayAudios = filtered.slice(0, visibleCount);
     return (
-      <Layout>
+      <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', overflow: 'scroll' }}>
         <Input value={search} onChange={e => changeSearch(e.target.value)} />
-        <Content className="box">
-          <Scroller loadMore={this.loadMore} hasMore={visibleCount < filtered.length}>
-            <AudioList audios={displayAudios} {...rest} search={search} />
-          </Scroller>
-        </Content>
-        <div style={{ marginBottom: 20 }} />
-      </Layout>
+        <Scroller loadMore={this.loadMore} hasMore={visibleCount < filtered.length}>
+          <AudioList audios={displayAudios} {...rest} search={search} />
+        </Scroller>
+      </div>
     );
   }
 }
@@ -220,16 +217,14 @@ class AudioListContainer extends React.Component {
   render() {
     const { audios, removeAllAudio, resetAudioState } = this.props;
     return (
-      <Layout>
-        <Content className="box">
-          <AudioListWithDefault audios={audios} />
-        </Content>
+      <div style={{ display: 'grid', gridTemplateRows: '1fr auto', overflow: 'scroll' }}>
+        <AudioListWithDefault audios={audios} />
         <div>
           <Button onClick={this.addAudios}>Add Audio</Button>
           <Button onClick={removeAllAudio}>Remove ALL</Button>
           <Button onClick={resetAudioState}>Reset Audio State</Button>
         </div>
-      </Layout>
+      </div>
     );
   }
 }

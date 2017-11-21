@@ -18,7 +18,7 @@ class Scroller extends Component {
     const mousewheel$ = Rx.Observable
       .fromEvent(this.elm, 'mousewheel')
       .filter(e => e.deltaY >= 0 && $(this.btmElm).position().top <= $(this.elm).height())
-      .debounceTime(200);
+      .debounceTime(50);
 
     scrollDown$
       .merge(mousewheel$)
@@ -48,7 +48,7 @@ class Scroller extends Component {
         }}
       >
         <div>{children}</div>
-        <div ref={btmElm => (this.btmElm = btmElm)} />
+        <div ref={btmElm => (this.btmElm = btmElm)} style={{ border: '1px solid red' }} />
       </div>
     );
   }
