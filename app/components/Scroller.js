@@ -7,6 +7,25 @@ class Scroller extends Component {
   componentDidMount() {
     const { loadMore, willUnmount$ } = this.props;
 
+    console.log($(this.btmElm).position().top);
+    console.log($(this.elm).height());
+
+    //   Rx.Observable.of($(this.btmElm).position().top <= $(this.elm).height())
+    // .filter(v => v)
+
+    const initSubject = new Rx.Subject();
+    const pro$ = initSubject
+      .flatMap(() => Promise.resolve(loadMore()))
+      .delay(500)
+      .filter(() => $(this.btmElm).position().top <= $(this.elm).height())
+      .subscribe(() => initSubject.next(1));
+
+    initSubject.subscribe(console.log);
+
+    if ($(this.btmElm).position().top <= $(this.elm).height()) {
+      initSubject.next(1);
+    }
+
     const scrollDown$ = Rx.Observable
       .fromEvent(this.elm, 'scroll')
       .map(() => $(this.elm).scrollTop())
@@ -33,8 +52,6 @@ class Scroller extends Component {
 
   render() {
     const { children } = this.props;
-    console.log('children', children);
-
     const { hadMore, loadMore } = this.props;
 
     return (

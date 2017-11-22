@@ -145,7 +145,7 @@ export const AudioList = props => {
 };
 
 class AudioListLazy extends React.Component {
-  state = { search: '', loadedAll: false, visibleCount: 10, perPage: 10 };
+  state = { search: '', loadedAll: false, visibleCount: 3, perPage: 2 };
   changeSearch = value => this.setState({ search: value, visibleCount: 30 });
 
   loadMore = pg => {
