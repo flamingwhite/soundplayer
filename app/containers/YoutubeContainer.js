@@ -13,7 +13,6 @@ import {
   getFilenameByUrl,
   getDurationByUrl,
 } from '../utils/mediaUtil';
-import AudioListContainer from '../containers/AudioListContainer';
 import { actions } from '../reducers/audioActionReducer';
 import { secondsToTimeStr } from '../utils/timeUtil';
 import { PAUSE_MEDIA } from '../global/eventConstants';
@@ -41,7 +40,7 @@ class YoutubeContainer extends React.Component {
   state = { ...defaultState };
 
   closeModal = () => this.setState({ ...defaultState });
-  downloadMedia = () => {
+  downloadMedia = (type = 'audio') => {
     const { url, name, duration } = this.state;
     const { mediaDownloaded } = this.props;
     return downloadAudio(url).then(() => {
@@ -55,7 +54,7 @@ class YoutubeContainer extends React.Component {
     const { mediaDownloaded } = this.props;
     const mediaFolder = type === 'audio' ? getAudioFolder() : getVideoFolder();
     let startDuration = null;
-    if (timeChunk && timeChunk[0]) {
+    if (timeChunk && timeChunk[0] != null) {
       startDuration = {
         start: timeChunk[0],
         duration: timeChunk[1] - timeChunk[0],
@@ -109,7 +108,6 @@ class YoutubeContainer extends React.Component {
         <video width="320" height="240" controls>
           <source src={`file://${getVideoFolder()}/testvideo.mp4`} />
         </video>
-        <AudioListContainer />
         {showMediaModal && (
           <Modal
             title="Add Online"

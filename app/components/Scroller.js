@@ -2,30 +2,38 @@ import React, { Component } from 'react';
 import Rx from 'rxjs/Rx';
 import * as R from 'ramda';
 import lifecycleStream from '../hoc/lifecycleStream';
+import { setTimeout } from 'timers';
 
 class Scroller extends Component {
+  checkEdge = () => {
+    const { loadMore, willUnmount$ } = this.props;
+    const initSubject = new Rx.Subject();
+    initSubject
+      .flatMap(() => Promise.resolve(loadMore()))
+      .delay(200)
+      .takeWhile(() => $(this.btmElm).position().top <= $(this.elm).height() && this.props.hasMore)
+      .takeUntil(willUnmount$)
+      .subscribe(() => {
+        console.log('inner sub');
+        initSubject.next(1);
+      });
+
+    if ($(this.btmElm).position().top <= $(this.elm).height()) {
+      initSubject.next(1);
+    }
+  };
+
+  componentDidUpdate() {}
+
   componentDidMount() {
     const { loadMore, willUnmount$ } = this.props;
 
     console.log($(this.btmElm).position().top);
     console.log($(this.elm).height());
+    this.checkEdge();
 
     //   Rx.Observable.of($(this.btmElm).position().top <= $(this.elm).height())
     // .filter(v => v)
-
-    const initSubject = new Rx.Subject();
-    const pro$ = initSubject
-      .flatMap(() => Promise.resolve(loadMore()))
-      .delay(500)
-      .filter(() => $(this.btmElm).position().top <= $(this.elm).height())
-      .subscribe(() => initSubject.next(1));
-
-    initSubject.subscribe(console.log);
-
-    if ($(this.btmElm).position().top <= $(this.elm).height()) {
-      initSubject.next(1);
-    }
-
     const scrollDown$ = Rx.Observable
       .fromEvent(this.elm, 'scroll')
       .map(() => $(this.elm).scrollTop())
@@ -52,7 +60,6 @@ class Scroller extends Component {
 
   render() {
     const { children } = this.props;
-    const { hadMore, loadMore } = this.props;
 
     return (
       <div
@@ -65,7 +72,7 @@ class Scroller extends Component {
         }}
       >
         <div>{children}</div>
-        <div ref={btmElm => (this.btmElm = btmElm)} style={{ border: '1px solid red' }} />
+        <div ref={btmElm => (this.btmElm = btmElm)} />
       </div>
     );
   }

@@ -145,8 +145,8 @@ export const AudioList = props => {
 };
 
 class AudioListLazy extends React.Component {
-  state = { search: '', loadedAll: false, visibleCount: 3, perPage: 2 };
-  changeSearch = value => this.setState({ search: value, visibleCount: 30 });
+  state = { search: '', loadedAll: false, visibleCount: 10, perPage: 10 };
+  changeSearch = value => this.setState({ search: value, visibleCount: 10 });
 
   loadMore = pg => {
     const { visibleCount, perPage } = this.state;
@@ -154,6 +154,15 @@ class AudioListLazy extends React.Component {
     this.setState({ visibleCount: visibleCount + perPage });
     return 'done';
   };
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.audios.length !== this.props.audios.length) {
+      //   this.setState({
+      //     loadedAll: false,
+      //     visibleCount: 10,
+      //     perPage: 20,
+      //   });
+    }
+  }
 
   render() {
     const { changeSearch } = this;
@@ -161,6 +170,7 @@ class AudioListLazy extends React.Component {
     const { audios, ...rest } = this.props;
     const filtered = R.filter(propContains(search, ['title', 'name']), audios);
     const displayAudios = filtered.slice(0, visibleCount);
+    console.log('cal', visibleCount, filtered.length);
     return (
       <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', overflow: 'scroll' }}>
         <Input value={search} onChange={e => changeSearch(e.target.value)} />
