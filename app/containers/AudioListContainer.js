@@ -109,7 +109,8 @@ export const AudioList = props => {
                       onChange={e =>
                         e.target.checked
                           ? addAudioToGroup(record.id, group.id)
-                          : removeAudioFromGroup(record.id, group.id)}
+                          : removeAudioFromGroup(record.id, group.id)
+                      }
                     >
                       {group.name}
                     </Checkbox>
@@ -174,9 +175,15 @@ class AudioListLazy extends React.Component {
     return (
       <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', overflow: 'scroll' }}>
         <Input value={search} onChange={e => changeSearch(e.target.value)} />
-        <Scroller loadMore={this.loadMore} hasMore={visibleCount < filtered.length}>
-          <AudioList audios={displayAudios} {...rest} search={search} />
-        </Scroller>
+        <div style={{ overflow: 'scroll' }}>
+          <Scroller
+            loadMore={this.loadMore}
+            hasMore={visibleCount < filtered.length}
+            checkOnValueChange={filtered.length}
+          >
+            <AudioList audios={displayAudios} {...rest} search={search} />
+          </Scroller>
+        </div>
       </div>
     );
   }
