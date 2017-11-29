@@ -7,14 +7,25 @@ import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/pairwise';
 import 'rxjs/add/operator/merge';
 import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/startWith';
 import 'rxjs/add/operator/exhaustMap';
 import 'rxjs/add/observable/fromEvent';
 
-class Scroller extends Component {
+export default class Scroller extends Component {
+  willUnmount$ = new Subject();
+  check$ = new Subject().takeUntil(this.willUnmount$);
+
+  doOneCheck = () => this.check$.next(0);
+  doRecursiveCheck = () => this.check$.next(1);
+
+  shouldLoadMore = () => {
+    const { distanceToBottom = 0, hasMore } = this.props;
+    const { elm } = this;
+    return hasMore && elm.scrollHeight - elm.scrollTop - elm.clientHeight <= distanceToBottom;
+  };
+
   componentDidMount() {
-    const { doOneCheck, doRecursiveCheck, elm } = this;
+    const { shouldLoadMore, doOneCheck, doRecursiveCheck, elm } = this;
     const { checkOnResize = true } = this.props;
 
     this.check$
@@ -32,16 +43,14 @@ class Scroller extends Component {
       Observable.fromEvent(window, 'resize').subscribe(doRecursiveCheck);
     }
 
-    const scrollDown$ = Observable.fromEvent(elm, 'scroll')
+    Observable.fromEvent(elm, 'scroll')
       .map(() => elm.scrollTop)
       .pairwise()
-      .filter(x => x[1] > x[0]);
-
-    const mousewheel$ = Observable.fromEvent(elm, 'mousewheel').filter(
-      e => (e.originalEvent || e).deltaY >= 0,
-    );
-
-    mousewheel$.merge(scrollDown$).subscribe(doOneCheck);
+      .filter(x => x[1] > x[0])
+      .merge(
+        Observable.fromEvent(elm, 'mousewheel').filter(e => (e.originalEvent || e).deltaY >= 0),
+      )
+      .subscribe(doOneCheck);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -54,19 +63,6 @@ class Scroller extends Component {
     this.willUnmount$.next('unmount');
     this.willUnmount$.complete();
   }
-
-  willUnmount$ = new Subject();
-  check$ = new Subject().takeUntil(this.willUnmount$);
-
-  doOneCheck = () => this.check$.next(0);
-  doRecursiveCheck = () => this.check$.next(1);
-
-  shouldLoadMore = () => {
-    const { distanceToBottom = 0, hasMore } = this.props;
-    const { elm } = this;
-    return hasMore && elm.scrollHeight - elm.scrollTop - elm.clientHeight <= distanceToBottom;
-  };
-
   render() {
     const { children } = this.props;
     return (
@@ -82,5 +78,3 @@ class Scroller extends Component {
     );
   }
 }
-
-export default Scroller;
