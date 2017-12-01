@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/operator/takeUntil';
@@ -12,32 +13,21 @@ import 'rxjs/add/operator/exhaustMap';
 import 'rxjs/add/observable/fromEvent';
 
 export default class Scroller extends Component {
-  willUnmount$ = new Subject();
-  check$ = new Subject().takeUntil(this.willUnmount$);
-
-  doOneCheck = () => this.check$.next(0);
-  doRecursiveCheck = () => this.check$.next(1);
-
-  shouldLoadMore = () => {
-    const { distanceToBottom = 0, hasMore } = this.props;
-    const { elm } = this;
-    return hasMore && elm.scrollHeight - elm.scrollTop - elm.clientHeight <= distanceToBottom;
-  };
+  constructor() {
+    super();
+    this.check$ = new Subject().filter(this.shouldLoadMore);
+  }
 
   componentDidMount() {
-    const { shouldLoadMore, doOneCheck, doRecursiveCheck, elm } = this;
+    const { doOneCheck, doRecursiveCheck, elm, check$ } = this;
     const { checkOnResize = true } = this.props;
 
-    this.check$
-      .filter(this.shouldLoadMore)
+    check$
       .debounceTime(20)
-      .startWith(1)
+      .startWith(true)
       .exhaustMap(recur => Promise.all([recur, this.props.loadMore()]))
       .map(arr => arr[0])
-      .subscribe(recur => {
-        console.log('recur', recur);
-        if (recur) this.doRecursiveCheck();
-      });
+      .subscribe(recur => recur && doRecursiveCheck());
 
     if (checkOnResize) {
       Observable.fromEvent(window, 'resize').subscribe(doRecursiveCheck);
@@ -60,9 +50,18 @@ export default class Scroller extends Component {
   }
 
   componentWillUnmount() {
-    this.willUnmount$.next('unmount');
-    this.willUnmount$.complete();
+    this.check$.complete();
   }
+
+  doOneCheck = () => this.check$.next(false);
+  doRecursiveCheck = () => this.check$.next(true);
+
+  shouldLoadMore = () => {
+    const { distanceToBottom = 0, hasMore } = this.props;
+    const { elm } = this;
+    return hasMore && elm.scrollHeight - elm.scrollTop - elm.clientHeight <= distanceToBottom;
+  };
+
   render() {
     const { children } = this.props;
     return (
@@ -78,3 +77,15 @@ export default class Scroller extends Component {
     );
   }
 }
+
+Scroller.propTypes = {
+  hasMore: PropTypes.bool.isRequired,
+  loadMore: PropTypes.func.isRequired,
+  checkOnResize: PropTypes.bool,
+  distanceToBottom: PropTypes.number,
+};
+
+Scroller.defaultProps = {
+  checkOnResize: true,
+  distanceToBottom: 0,
+};
