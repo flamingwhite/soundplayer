@@ -2,6 +2,7 @@ import React from 'react';
 import * as R from 'ramda';
 import { connect } from 'react-redux';
 import { Layout, Button, Input, Table, Popover, Checkbox } from 'antd';
+import SimpleScroller from 'react-simple-scroller';
 import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
 import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
@@ -176,13 +177,13 @@ class AudioListLazy extends React.Component {
       <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', overflow: 'scroll' }}>
         <Input value={search} onChange={e => changeSearch(e.target.value)} />
         <div style={{ overflow: 'scroll' }}>
-          <Scroller
+          <SimpleScroller
             loadMore={this.loadMore}
             hasMore={visibleCount < filtered.length}
             checkOnValueChange={filtered.length}
           >
             <AudioList audios={displayAudios} {...rest} search={search} />
-          </Scroller>
+          </SimpleScroller>
         </div>
       </div>
     );
