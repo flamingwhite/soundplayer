@@ -2,13 +2,17 @@ import React from 'react';
 import * as R from 'ramda';
 import { connect } from 'react-redux';
 import { Layout, Button, Input, Table, Popover, Checkbox } from 'antd';
-import SimpleScroller from 'react-simple-scroller';
+// import SimpleScroller from 'react-simple-scroller';
+import SimpleScroller from '../components/Scroller';
 import { localAudioPaths, openItemInFolder } from '../utils/getLocalFiles';
 import { getNameByPath } from '../utils/audioUtil';
 import { actions } from '../reducers/audioActionReducer';
 import { getMd5 } from '../utils/idUtil';
 import lifecycleStream from '../hoc/lifecycleStream';
-import { groupListSelector, groupListForDropdownSelector } from '../selectors/groupSelector';
+import {
+  groupListSelector,
+  groupListForDropdownSelector
+} from '../selectors/groupSelector';
 import { visibleAudios } from '../selectors/audioSelectors';
 import SearchHighlight from '../components/SearchHighlight';
 import { propContains } from '../utils/littleFn';
@@ -18,7 +22,8 @@ const { Column } = Table;
 const { Content, Footer } = Layout;
 
 // const formatSec = sec => `${Math.floor(sec / 60)}:${sec % 60}`;
-const ifElseValue = (pre, trueValue, falseValue) => (pre ? trueValue : falseValue);
+const ifElseValue = (pre, trueValue, falseValue) =>
+  pre ? trueValue : falseValue;
 
 export const AudioList = props => {
   const {
@@ -32,7 +37,7 @@ export const AudioList = props => {
     addAudioToGroup,
     removeAudioFromGroup,
     groupListForDropdown,
-    search = '',
+    search = ''
   } = props;
   const isCurrentPlaying = audio =>
     currentPlaying ? R.eqProps('id', audio, currentPlaying) : false;
@@ -55,7 +60,9 @@ export const AudioList = props => {
               <i className="material-icons" style={{ color: 'red' }}>
                 volume_up
               </i>,
-              <span style={{ marginLeft: 4 }}>{index < 9 ? `0${index + 1}` : index + 1}</span>,
+              <span style={{ marginLeft: 4 }}>
+                {index < 9 ? `0${index + 1}` : index + 1}
+              </span>
             )}
           </span>
         )}
@@ -73,9 +80,12 @@ export const AudioList = props => {
               >
                 favorite
               </i>,
-              <i className="material-icons" onClick={() => addAudioToFavorite(record)}>
+              <i
+                className="material-icons"
+                onClick={() => addAudioToFavorite(record)}
+              >
                 favorite_border
-              </i>,
+              </i>
             )}
           </span>
         )}
@@ -86,14 +96,19 @@ export const AudioList = props => {
         dataIndex="title"
         width="50%"
         render={(text, record) => (
-          <SearchHighlight search={search} value={record.title || record.name} />
+          <SearchHighlight
+            search={search}
+            value={record.title || record.name}
+          />
         )}
       />
       <Column
         title="Artist"
         dataIndex="artist"
         width={170}
-        render={(text, record) => <SearchHighlight search={search} value={record.artist} />}
+        render={(text, record) => (
+          <SearchHighlight search={search} value={record.artist} />
+        )}
       />
       <Column
         render={(text, record) => (
@@ -174,7 +189,13 @@ class AudioListLazy extends React.Component {
     const displayAudios = filtered.slice(0, visibleCount);
     console.log('cal', visibleCount, filtered.length);
     return (
-      <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', overflow: 'scroll' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateRows: 'auto 1fr',
+          overflow: 'scroll'
+        }}
+      >
         <Input value={search} onChange={e => changeSearch(e.target.value)} />
         <div style={{ overflow: 'scroll' }}>
           <SimpleScroller
@@ -194,28 +215,39 @@ export const AudioListWithDefault = R.compose(
   lifecycleStream,
   connect(
     (state, ownProps) => ({
-      currentPlaying: ownProps.currentPlaying || state.audioChunk.currentPlaying,
+      currentPlaying:
+        ownProps.currentPlaying || state.audioChunk.currentPlaying,
       groupList: ownProps.groupList || groupListSelector(state),
-      groupListForDropdown: ownProps.groupListForDropdown || groupListForDropdownSelector(state),
+      groupListForDropdown:
+        ownProps.groupListForDropdown || groupListForDropdownSelector(state)
     }),
     (dispatch, ownProps) => ({
-      addAudio: ownProps.addAudio || (audio => dispatch(actions.addAudio(audio))),
+      addAudio:
+        ownProps.addAudio || (audio => dispatch(actions.addAudio(audio))),
       addAudioToFavorite:
-        ownProps.addAudioToFavorite || (audio => dispatch(actions.addAudioToFavorite(audio.id))),
+        ownProps.addAudioToFavorite ||
+        (audio => dispatch(actions.addAudioToFavorite(audio.id))),
       removeAudioFromFavorite:
         ownProps.removeAudioFromFavorite ||
         (audio => dispatch(actions.removeAudioFromFavorite(audio.id))),
-      removeAudio: ownProps.removeAudio || (audio => dispatch(actions.removeAudio(audio.id))),
-      onAudioClick: ownProps.onAudioClick || (audio => dispatch(actions.setCurrentPlaying(audio))),
-      openInFolderClick: ownProps.openInFolderClick || (audio => openItemInFolder(audio.path)),
+      removeAudio:
+        ownProps.removeAudio ||
+        (audio => dispatch(actions.removeAudio(audio.id))),
+      onAudioClick:
+        ownProps.onAudioClick ||
+        (audio => dispatch(actions.setCurrentPlaying(audio))),
+      openInFolderClick:
+        ownProps.openInFolderClick || (audio => openItemInFolder(audio.path)),
       addAudioToGroup:
         ownProps.addAudioToGroup ||
-        ((audioId, groupId) => dispatch(actions.addAudioToGroup({ audioId, groupId }))),
+        ((audioId, groupId) =>
+          dispatch(actions.addAudioToGroup({ audioId, groupId }))),
       removeAudioFromGroup:
         ownProps.removeAudioFromGroup ||
-        ((audioId, groupId) => dispatch(actions.removeAudioFromGroup({ audioId, groupId }))),
-    }),
-  ),
+        ((audioId, groupId) =>
+          dispatch(actions.removeAudioFromGroup({ audioId, groupId })))
+    })
+  )
 )(AudioListLazy);
 
 class AudioListContainer extends React.Component {
@@ -226,16 +258,22 @@ class AudioListContainer extends React.Component {
         paths.map(p => ({
           id: getMd5(p),
           path: p,
-          name: getNameByPath(p),
-        })),
-      ),
+          name: getNameByPath(p)
+        }))
+      )
     );
   };
 
   render() {
     const { audios, removeAllAudio, resetAudioState } = this.props;
     return (
-      <div style={{ display: 'grid', gridTemplateRows: '1fr auto', overflow: 'scroll' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateRows: '1fr auto',
+          overflow: 'scroll'
+        }}
+      >
         <AudioListWithDefault audios={audios} />
         <div>
           <Button onClick={this.addAudios}>Add Audio</Button>
@@ -249,11 +287,11 @@ class AudioListContainer extends React.Component {
 
 export default connect(
   state => ({
-    audios: visibleAudios(state),
+    audios: visibleAudios(state)
   }),
   dispatch => ({
     removeAllAudio: () => dispatch(actions.removeAllAudio()),
     addMultipleAudios: audios => dispatch(actions.addMultipleAudios(audios)),
-    resetAudioState: () => dispatch(actions.resetAudioState()),
-  }),
+    resetAudioState: () => dispatch(actions.resetAudioState())
+  })
 )(AudioListContainer);
