@@ -11,7 +11,7 @@ import {
   getYoutubeVideoId,
   downloadAndCutMedia,
   getFilenameByUrl,
-  getDurationByUrl,
+  getDurationByUrl
 } from '../utils/mediaUtil';
 import { actions } from '../reducers/audioActionReducer';
 import { secondsToTimeStr } from '../utils/timeUtil';
@@ -33,7 +33,7 @@ const defaultState = {
   showMediaModal: false,
   name: null,
   duration: null,
-  timeChunk: [0, 0],
+  timeChunk: [0, 0]
 };
 
 class YoutubeContainer extends React.Component {
@@ -57,7 +57,7 @@ class YoutubeContainer extends React.Component {
     if (timeChunk && timeChunk[0] != null) {
       startDuration = {
         start: timeChunk[0],
-        duration: timeChunk[1] - timeChunk[0],
+        duration: timeChunk[1] - timeChunk[0]
       };
     }
 
@@ -68,7 +68,7 @@ class YoutubeContainer extends React.Component {
       filenameWithoutExt: name,
       mediaFolder,
       type,
-      startDuration,
+      startDuration
     })
       .then(mediaDownloaded)
       .then(() => this.setState({ loading: false, showMediaModal: false }))
@@ -87,7 +87,7 @@ class YoutubeContainer extends React.Component {
       url,
       name: null,
       duration: null,
-      timeChunk: [0, 0],
+      timeChunk: [0, 0]
     });
     publishEvent(PAUSE_MEDIA);
 
@@ -95,16 +95,28 @@ class YoutubeContainer extends React.Component {
       console.log('name fetch', name);
       this.setState({ name });
     });
-    getDurationByUrl(url).then(duration => this.setState({ duration, timeChunk: [0, duration] }));
+    getDurationByUrl(url).then(duration =>
+      this.setState({ duration, timeChunk: [0, duration] })
+    );
   };
 
   render() {
-    const { url, inputValue, showMediaModal, name, duration, timeChunk, loading } = this.state;
+    const {
+      url,
+      inputValue,
+      showMediaModal,
+      name,
+      duration,
+      timeChunk,
+      loading
+    } = this.state;
     const [start, end] = timeChunk;
     const { fetchInfo, downloadMedia, downloadMediaChunk } = this;
     return (
       <div>
-        <Button onClick={() => this.setState({ showMediaModal: true })}>Play Online Audio</Button>
+        <Button onClick={() => this.setState({ showMediaModal: true })}>
+          Play Online Audio
+        </Button>
         <video width="320" height="240" controls>
           <source src={`file://${getVideoFolder()}/testvideo.mp4`} />
         </video>
@@ -117,7 +129,15 @@ class YoutubeContainer extends React.Component {
           >
             <Spin spinning={loading} tip={'Processing'}>
               <Input.Search placeholder="Media URL" onSearch={this.fetchInfo} />
-              {url && <iframe width="420" height="315" src={url} frameBorder="0" allowFullScreen />}
+              {url && (
+                <iframe
+                  width="420"
+                  height="315"
+                  src={url}
+                  frameBorder="0"
+                  allowFullScreen
+                />
+              )}
               {url}
               {duration && (
                 <Slider
@@ -129,14 +149,14 @@ class YoutubeContainer extends React.Component {
                 />
               )}
               {!duration && name && <div>Loading Duration Information</div>}
-              <Button onClick={this.downloadMedia}>Download Audio</Button>
               {duration && [
+                <Button onClick={this.downloadMedia}>Download Audio</Button>,
                 <Button onClick={() => this.downloadMediaChunk('audio')}>
                   Download from {start} - {end}
                 </Button>,
                 <Button onClick={() => this.downloadMediaChunk('video')}>
                   Video from {start} - {end}
-                </Button>,
+                </Button>
               ]}
             </Spin>
           </Modal>
@@ -150,7 +170,7 @@ export default R.compose(
   connect(
     state => ({}),
     dispatch => ({
-      mediaDownloaded: info => dispatch(actions.mediaDownloaded(info)),
-    }),
-  ),
+      mediaDownloaded: info => dispatch(actions.mediaDownloaded(info))
+    })
+  )
 )(YoutubeContainer);

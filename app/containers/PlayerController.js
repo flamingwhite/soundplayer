@@ -11,14 +11,15 @@ import lifecycleStream from '../hoc/lifecycleStream';
 import { secondsToTimeStr } from '../utils/timeUtil';
 import Icon from '../components/MIcon';
 
-const ifElseValue = (pre, trueValue, falseValue) => (pre ? trueValue : falseValue);
+const ifElseValue = (pre, trueValue, falseValue) =>
+  pre ? trueValue : falseValue;
 
 class PlayerController extends React.Component {
   state = {
     currentTime: 0,
     duration: 0,
     playing: true,
-    volumeBeforeMute: null,
+    volumeBeforeMute: null
   };
   componentDidMount() {
     const { willUnmount$ } = this.props;
@@ -40,11 +41,11 @@ class PlayerController extends React.Component {
     .distinctUntilChanged();
 
   playClick = () => {
-    this.audioElm.play();
+    this.audioElm && this.audioElm.play();
     this.setState({ playing: true });
   };
   pauseClick = () => {
-    this.audioElm.pause();
+    this.audioElm && this.audioElm.pause();
     this.setState({ playing: false });
   };
   render() {
@@ -56,7 +57,7 @@ class PlayerController extends React.Component {
       playNextAudio,
       playPreviousAudio,
       playModeId,
-      nextPlayMode,
+      nextPlayMode
     } = this.props;
     const { currentTime, duration, playing, volumeBeforeMute } = this.state;
     const { playClick, pauseClick } = this;
@@ -86,7 +87,7 @@ class PlayerController extends React.Component {
               height: 80,
               alignItems: 'center',
               display: 'grid',
-              gridTemplateColumns: '200px 1fr auto',
+              gridTemplateColumns: '200px 1fr auto'
             }}
           >
             <div
@@ -95,13 +96,33 @@ class PlayerController extends React.Component {
                 gridTemplateColumns: 'repeat(3, 1fr)',
                 alignItems: 'center',
                 marginLeft: 30,
-                marginRight: 30,
+                marginRight: 30
               }}
             >
-              <Icon type="skip_previous" onClick={playPreviousAudio} style={{ fontSize: 30 }} />
-              {playing && <Icon type="pause" onClick={pauseClick} style={{ fontSize: 45 }} />}
-              {!playing && <Icon type="play_arrow" onClick={playClick} style={{ fontSize: 45 }} />}
-              <Icon type="skip_next" onClick={playNextAudio} style={{ fontSize: 30 }} />
+              <Icon
+                type="skip_previous"
+                onClick={playPreviousAudio}
+                style={{ fontSize: 30 }}
+              />
+              {playing && (
+                <Icon
+                  type="pause"
+                  onClick={pauseClick}
+                  style={{ fontSize: 45 }}
+                />
+              )}
+              {!playing && (
+                <Icon
+                  type="play_arrow"
+                  onClick={playClick}
+                  style={{ fontSize: 45 }}
+                />
+              )}
+              <Icon
+                type="skip_next"
+                onClick={playNextAudio}
+                style={{ fontSize: 30 }}
+              />
             </div>
 
             <Slider
@@ -121,17 +142,31 @@ class PlayerController extends React.Component {
                 gridTemplateColumns: 'auto auto auto auto',
                 gridColumnGap: 10,
                 marginLeft: 10,
-                marginRight: 15,
+                marginRight: 15
               }}
             >
-              <span>{`${secondsToTimeStr(currentTime)}/${secondsToTimeStr(duration)}`}</span>
+              <span>{`${secondsToTimeStr(currentTime)}/${secondsToTimeStr(
+                duration
+              )}`}</span>
 
-              <Icon type={activePlayMode.icon} style={{ fontSize: 25 }} onClick={nextPlayMode} />
+              <Icon
+                type={activePlayMode.icon}
+                style={{ fontSize: 25 }}
+                onClick={nextPlayMode}
+              />
 
               {ifElseValue(
                 volume > 0,
-                <Icon type="volume_up" onClick={muteClick} style={{ fontSize: 25 }} />,
-                <Icon type="volume_mute" onClick={unMuteClick} style={{ fontSize: 25 }} />,
+                <Icon
+                  type="volume_up"
+                  onClick={muteClick}
+                  style={{ fontSize: 25 }}
+                />,
+                <Icon
+                  type="volume_mute"
+                  onClick={unMuteClick}
+                  style={{ fontSize: 25 }}
+                />
               )}
               <Slider
                 min={0}
@@ -158,8 +193,13 @@ class PlayerController extends React.Component {
               });
             }}
             onLoadedMetadata={e =>
-              this.setState({ duration: Math.floor(e.nativeEvent.target.duration) })}
-            onTimeUpdate={e => this.timeUpdate$.next(e.nativeEvent.target.currentTIme)}
+              this.setState({
+                duration: Math.floor(e.nativeEvent.target.duration)
+              })
+            }
+            onTimeUpdate={e =>
+              this.timeUpdate$.next(e.nativeEvent.target.currentTIme)
+            }
             autoPlay
             src={`file://${currentPlaying.path}`}
           />
@@ -175,14 +215,14 @@ export default R.compose(
     state => ({
       currentPlaying: state.audioChunk.currentPlaying,
       volume: state.audioChunk.volume,
-      playModeId: state.audioChunk.playModeId,
+      playModeId: state.audioChunk.playModeId
     }),
     dispatch => ({
       playbackEnd: () => dispatch(actions.playbackEnd()),
       playNextAudio: () => dispatch(actions.playNextAudio()),
       playPreviousAudio: () => dispatch(actions.playPreviousAudio()),
       setVolume: volume => dispatch(actions.setVolume(volume)),
-      nextPlayMode: () => dispatch(actions.nextPlayMode()),
-    }),
-  ),
+      nextPlayMode: () => dispatch(actions.nextPlayMode())
+    })
+  )
 )(PlayerController);
