@@ -286,8 +286,8 @@ class AudioListContainer extends React.Component {
 }
 
 export default connect(
-  state => ({
-    audios: visibleAudios(state)
+  (state, ownProps) => ({
+    audios: ownProps.audios || visibleAudios(state)
   }),
   dispatch => ({
     removeAllAudio: () => dispatch(actions.removeAllAudio()),

@@ -17,6 +17,7 @@ import { actions } from '../reducers/audioActionReducer';
 import { secondsToTimeStr } from '../utils/timeUtil';
 import { PAUSE_MEDIA } from '../global/eventConstants';
 import { publishEvent } from '../global/eventStream';
+import AudioListContainer from './AudioListContainer';
 
 const getEmbedUrl = url => {
   const id = getYoutubeVideoId(url);
@@ -112,6 +113,8 @@ class YoutubeContainer extends React.Component {
     } = this.state;
     const [start, end] = timeChunk;
     const { fetchInfo, downloadMedia, downloadMediaChunk } = this;
+
+    console.log('props youtube', this.props);
     return (
       <div>
         <Button onClick={() => this.setState({ showMediaModal: true })}>

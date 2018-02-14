@@ -15,7 +15,7 @@ export const localAudioPaths = (options = {}) => {
   const newOpts = R.compose(
     R.over(
       R.lensProp('filters'),
-      R.append({ name: 'Audios', extensions: ['mp3', 'mp4', 'avi'] })
+      R.append({ name: 'Audios', extensions: ['mp3', 'mp4', 'avi', 'mov'] })
     ),
     R.over(
       R.lensProp('properties'),
